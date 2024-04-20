@@ -9,6 +9,7 @@
 #include <utils.h>
 #include <MQTTManager.h>
 #include <WiFiManager.h>
+#include <SensorHandler.h>
 #include <Led.h>
 
 const char *ssid = "iPhone di Livia";
@@ -20,17 +21,19 @@ const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
 
-WiFiClient espClient;
+float temperature;
 
+WiFiClient espClient;
+WebServer server(80);
 MQTTManager *mqttManager;
 WiFiManager *wifiManager;
+SensorHandler *sensorHandler;
 Led *redLed;
 Led *greenLed;
 
-WebServer server(80);
 DHT dht(DHTPIN, DHTTYPE);
-MQUnifiedsensor MQ135("ESP32", 5, 12, MQ135PIN, "MQ-135");
-MQUnifiedsensor MQ7("ESP32", 5, 12, MQ7PIN, "MQ-7");
+MQUnifiedsensor MQ135(BOARDTYPE, 5, 12, MQ135PIN, "MQ-135");
+MQUnifiedsensor MQ7(BOARDTYPE, 5, 12, MQ7PIN, "MQ-7");
 
 float readDHTTemperature();
 float readDHTHumidity();
@@ -92,20 +95,19 @@ void setup(void)
 
   Serial.begin(115200);
 
+  pinMode(FANPIN, INPUT);
+  pinMode(PWMPIN, OUTPUT);
+
   redLed = new Led(REDLEDPIN);
   greenLed = new Led(GREENLEDPIN);
 
   mqttManager = new MQTTManager(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
   wifiManager = new WiFiManager(ssid, password, redLed, greenLed);
-
-  dht.begin();
-  MQ135.setRegressionMethod(1); //_PPM =  a*ratio^b
-  MQ135.init();
-  MQ7.setRegressionMethod(1);
-  MQ7.init();
+  sensorHandler = new SensorHandler(&dht, &MQ135, &MQ7);
 
   delay(100);
 
+  sensorHandler->setUp();
   wifiManager->connect();
   mqttManager->connect();
   // mqttManager->subscribe(topic, callback);
@@ -121,57 +123,7 @@ void setup(void)
   server.begin();
   Serial.println("HTTP server started");
 
-  // The calibration of the sensor should be done only during the first use
-
-  Serial.print("Calibrating MQ-135 sensor please wait ...");
-  float calcR0 = 0;
-  for (int i = 1; i <= R0_PRECISION; i++)
-  {
-    MQ135.update(); // Update data, read the voltage from the analog pin
-    calcR0 += MQ135.calibrate(RatioMQ135CleanAir);
-    Serial.print(".");
-  }
-  MQ135.setR0(calcR0 / R0_PRECISION);
-  Serial.println("  done!");
-  Serial.println(calcR0);
-
-  if (isinf(calcR0))
-  {
-    Serial.println("Warning: Conection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
-    while (1)
-      ;
-  }
-  if (calcR0 == 0)
-  {
-    Serial.println("Warning: Conection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
-    while (1)
-      ;
-  }
-
-  Serial.print("Calibrating MQ-7 sensor please wait ...");
-  float calcR0MQ7 = 0;
-  for (int i = 1; i <= R0_PRECISION; i++)
-  {
-    MQ7.update(); // Update data, read the voltage from the analog pin
-    calcR0MQ7 += MQ7.calibrate(RatioMQ135CleanAir);
-    Serial.print(".");
-  }
-  MQ7.setR0(calcR0MQ7 / R0_PRECISION);
-  Serial.println("  done!");
-  Serial.println(calcR0MQ7);
-
-  if (isinf(calcR0MQ7))
-  {
-    Serial.println("Warning: Conection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
-    while (1)
-      ;
-  }
-  if (calcR0MQ7 == 0)
-  {
-    Serial.println("Warning: Conection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
-    while (1)
-      ;
-  }
+  sensorHandler->calibrate();
 
   Serial.println("** Values from MQ-135 ****");
   Serial.println("|    CO   |  Alcohol |   CO2  |  Toluen  |  NH4  |  Aceton  |");
@@ -180,10 +132,24 @@ void setup(void)
 void loop(void)
 {
   server.handleClient();
-
   mqttManager->update();
   wifiManager->checkConnection();
   mqttManager->checkConnection();
+
+  temperature = dht.readTemperature();
+
+  if (temperature > 25)
+  {
+    analogWrite(PWMPIN, 255);
+  }
+  else if (temperature > 28)
+  {
+    analogWrite(PWMPIN, 500);
+  }
+  else if (temperature < 25)
+  {
+    analogWrite(PWMPIN, 0);
+  }
 
   MQ7.update();
   MQ7.setA(605.18);
@@ -193,7 +159,6 @@ void loop(void)
   mqttManager->publish(COtopic, strValue.c_str());
 
   MQ135.update(); // Update data, read the voltage from the analog pin
-
   MQ135.setA(605.18);
   MQ135.setB(-3.937);            // Configure the equation to calculate CO concentration value
   float CO = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
