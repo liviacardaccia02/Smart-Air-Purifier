@@ -7,15 +7,15 @@
 
 class WiFiManager
 {
+public:
+    WiFiManager(const char *ssid, const char *password, Led *redLed, Led *greenLed);
+    void connect();
+    void checkConnection();
 private:
     Led *redLed;
     Led *greenLed;
     const char *ssid;
     const char *password;
-public:
-    WiFiManager(const char *ssid, const char *password, Led *redLed, Led *greenLed);
-    void connect();
-    void checkConnection();
 };
 
 #endif
