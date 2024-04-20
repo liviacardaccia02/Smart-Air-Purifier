@@ -9,6 +9,7 @@
 #include <utils.h>
 #include <MQTTManager.h>
 #include <WiFiManager.h>
+#include <SensorHandler.h>
 #include <Led.h>
 
 const char *ssid = "iPhone di Livia";
@@ -24,6 +25,7 @@ WiFiClient espClient;
 
 MQTTManager *mqttManager;
 WiFiManager *wifiManager;
+SensorHandler *sensorHandler;
 Led *redLed;
 Led *greenLed;
 
@@ -97,17 +99,13 @@ void setup(void)
 
   mqttManager = new MQTTManager(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
   wifiManager = new WiFiManager(ssid, password, redLed, greenLed);
-
-  dht.begin();
-  MQ135.setRegressionMethod(1); //_PPM =  a*ratio^b
-  MQ135.init();
-  MQ7.setRegressionMethod(1);
-  MQ7.init();
+  sensorHandler = new SensorHandler(&dht, &MQ135, &MQ7);
 
   delay(100);
 
   wifiManager->connect();
   mqttManager->connect();
+  sensorHandler->setUp();
   // mqttManager->subscribe(topic, callback);
 
   delay(100);
@@ -121,57 +119,7 @@ void setup(void)
   server.begin();
   Serial.println("HTTP server started");
 
-  // The calibration of the sensor should be done only during the first use
-
-  Serial.print("Calibrating MQ-135 sensor please wait ...");
-  float calcR0 = 0;
-  for (int i = 1; i <= R0_PRECISION; i++)
-  {
-    MQ135.update(); // Update data, read the voltage from the analog pin
-    calcR0 += MQ135.calibrate(RatioMQ135CleanAir);
-    Serial.print(".");
-  }
-  MQ135.setR0(calcR0 / R0_PRECISION);
-  Serial.println("  done!");
-  Serial.println(calcR0);
-
-  if (isinf(calcR0))
-  {
-    Serial.println("Warning: Conection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
-    while (1)
-      ;
-  }
-  if (calcR0 == 0)
-  {
-    Serial.println("Warning: Conection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
-    while (1)
-      ;
-  }
-
-  Serial.print("Calibrating MQ-7 sensor please wait ...");
-  float calcR0MQ7 = 0;
-  for (int i = 1; i <= R0_PRECISION; i++)
-  {
-    MQ7.update(); // Update data, read the voltage from the analog pin
-    calcR0MQ7 += MQ7.calibrate(RatioMQ135CleanAir);
-    Serial.print(".");
-  }
-  MQ7.setR0(calcR0MQ7 / R0_PRECISION);
-  Serial.println("  done!");
-  Serial.println(calcR0MQ7);
-
-  if (isinf(calcR0MQ7))
-  {
-    Serial.println("Warning: Conection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
-    while (1)
-      ;
-  }
-  if (calcR0MQ7 == 0)
-  {
-    Serial.println("Warning: Conection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
-    while (1)
-      ;
-  }
+  sensorHandler->calibrate();
 
   Serial.println("** Values from MQ-135 ****");
   Serial.println("|    CO   |  Alcohol |   CO2  |  Toluen  |  NH4  |  Aceton  |");
