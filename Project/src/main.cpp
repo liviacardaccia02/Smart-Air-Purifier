@@ -20,6 +20,7 @@ const char *tempTopic = "PoliTemp";
 const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
+unsigned long oldTime = 0;
 
 WiFiClient espClient;
 
@@ -31,8 +32,8 @@ Led *greenLed;
 
 WebServer server(80);
 DHT dht(DHTPIN, DHTTYPE);
-MQUnifiedsensor MQ135("ESP32", 5, 12, MQ135PIN, "MQ-135");
-MQUnifiedsensor MQ7("ESP32", 5, 12, MQ7PIN, "MQ-7");
+MQUnifiedsensor MQ135("ESP32", VoltageResolution, ADCBitResolution, MQ135PIN, "MQ-135");
+MQUnifiedsensor MQ7("ESP32", VoltageResolution, ADCBitResolution, MQ7PIN, "MQ-7");
 
 float readDHTTemperature();
 float readDHTHumidity();
@@ -94,6 +95,9 @@ void setup(void)
 
   Serial.begin(115200);
 
+  pinMode(PWMMQ7PIN, OUTPUT);
+  pinMode(PWMFANPIN, OUTPUT);
+
   redLed = new Led(REDLEDPIN);
   greenLed = new Led(GREENLEDPIN);
 
@@ -104,7 +108,7 @@ void setup(void)
   delay(100);
 
   wifiManager->connect();
-  mqttManager->connect();
+  //mqttManager->connect();
   sensorHandler->setUp();
   // mqttManager->subscribe(topic, callback);
 
@@ -120,78 +124,18 @@ void setup(void)
   Serial.println("HTTP server started");
 
   sensorHandler->calibrate();
-
-  Serial.println("** Values from MQ-135 ****");
-  Serial.println("|    CO   |  Alcohol |   CO2  |  Toluen  |  NH4  |  Aceton  |");
 }
 
 void loop(void)
 {
   server.handleClient();
 
-  mqttManager->update();
+  //mqttManager->update();
   wifiManager->checkConnection();
-  mqttManager->checkConnection();
-
-  MQ7.update();
-  MQ7.setA(605.18);
-  MQ7.setB(-3.937);
-  float COMQ7 = MQ7.readSensor();
-  String strValue = "CO concentration: " + String(COMQ7) + "ppm";
-  mqttManager->publish(COtopic, strValue.c_str());
-
-  MQ135.update(); // Update data, read the voltage from the analog pin
-
-  MQ135.setA(605.18);
-  MQ135.setB(-3.937);            // Configure the equation to calculate CO concentration value
-  float CO = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
-
-  MQ135.setA(77.255);
-  MQ135.setB(-3.18);                  // Configure the equation to calculate Alcohol concentration value
-  float Alcohol = MQ135.readSensor(); // SSensor will read PPM concentration using the model, a and b values set previously or from the setup
-
-  MQ135.setA(110.47);
-  MQ135.setB(-2.862);             // Configure the equation to calculate CO2 concentration value
-  float CO2 = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
-
-  MQ135.setA(44.947);
-  MQ135.setB(-3.445);                // Configure the equation to calculate Toluen concentration value
-  float Toluen = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
-
-  MQ135.setA(102.2);
-  MQ135.setB(-2.473);             // Configure the equation to calculate NH4 concentration value
-  float NH4 = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
-
-  MQ135.setA(34.668);
-  MQ135.setB(-3.369);                // Configure the equation to calculate Aceton concentration value
-  float Aceton = MQ135.readSensor(); // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
-  Serial.print("|   ");
-  Serial.print(CO);
-  Serial.print("   |   ");
-  Serial.print(Alcohol);
-
-  Serial.print("   |   ");
-  Serial.print(CO2 + 421); // 421ppm offset due to current pollution
-  Serial.print("   |   ");
-  Serial.print(Toluen);
-  Serial.print("   |   ");
-  Serial.print(NH4);
-  Serial.print("   |   ");
-  Serial.print(Aceton);
-  Serial.println("   |");
-
-  /*
-    Exponential regression:
-    GAS      | a      | b
-    CO       | 605.18 | -3.937
-    Alcohol  | 77.255 | -3.18
-    CO2      | 110.47 | -2.862
-    Toluen  | 44.947 | -3.445
-    NH4      | 102.2  | -2.473
-    Aceton  | 34.668 | -3.369
-  */
-
-  delay(500); // Sampling frequency
+  //mqttManager->checkConnection();
+  sensorHandler->heatMQ7(PWMMQ7PIN);
+  sensorHandler->read();
+  sensorHandler->debug();
 }
 
 float readDHTTemperature()
