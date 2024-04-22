@@ -10,6 +10,7 @@
 #include <MQTTManager.h>
 #include <WiFiManager.h>
 #include <SensorHandler.h>
+#include <FanController.h>
 #include <Led.h>
 
 const char *ssid = "iPhone di Livia";
@@ -20,13 +21,17 @@ const char *tempTopic = "PoliTemp";
 const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
-unsigned long oldTime = 0;
+const int minTemp = 26;
+const int maxTemp = 28;
+const int minSpeed = 0;
+const int maxSpeed = 255;
 
 WiFiClient espClient;
 
 MQTTManager *mqttManager;
 WiFiManager *wifiManager;
 SensorHandler *sensorHandler;
+FanController *fanController;
 Led *redLed;
 Led *greenLed;
 
@@ -97,10 +102,11 @@ void setup(void)
 
   pinMode(PWMMQ7PIN, OUTPUT);
   pinMode(PWMFANPIN, OUTPUT);
+  pinMode(FANPIN, INPUT);
 
   redLed = new Led(REDLEDPIN);
   greenLed = new Led(GREENLEDPIN);
-
+  fanController = new FanController(minTemp, maxTemp, minSpeed, maxSpeed);
   mqttManager = new MQTTManager(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
   wifiManager = new WiFiManager(ssid, password, redLed, greenLed);
   sensorHandler = new SensorHandler(&dht, &MQ135, &MQ7);
@@ -108,7 +114,7 @@ void setup(void)
   delay(100);
 
   wifiManager->connect();
-  //mqttManager->connect();
+  mqttManager->connect();
   sensorHandler->setUp();
   // mqttManager->subscribe(topic, callback);
 
@@ -123,16 +129,20 @@ void setup(void)
   server.begin();
   Serial.println("HTTP server started");
 
-  sensorHandler->calibrate();
+  // sensorHandler->calibrate();
 }
 
 void loop(void)
 {
   server.handleClient();
 
-  //mqttManager->update();
+  mqttManager->update();
   wifiManager->checkConnection();
-  //mqttManager->checkConnection();
+  mqttManager->checkConnection();
+
+  int speed = fanController->calculateFanSpeed(dht.readTemperature());
+  analogWrite(PWMFANPIN, speed);
+
   sensorHandler->heatMQ7(PWMMQ7PIN);
   sensorHandler->read();
   sensorHandler->debug();
