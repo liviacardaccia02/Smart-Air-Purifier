@@ -16,8 +16,7 @@
 const char *ssid = "iPhone di Livia";
 const char *password = "kitty123";
 const char *mqttBroker = "broker.hivemq.com";
-const char *COtopic = "PoliCO";
-const char *tempTopic = "PoliTemp";
+const char *topic = "Smart-air-purifier";
 const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
@@ -150,6 +149,8 @@ void loop(void)
 
   sensorHandler->read();
   sensorHandler->debug();
+
+  mqttManager->publish(topic, sensorHandler->encode().c_str());
 }
 
 void heatingTask(void *parameter)
@@ -189,39 +190,39 @@ void heatingTask(void *parameter)
   }
 }
 
-float readDHTTemperature()
-{
-  // Sensor readings may also be up to 2 seconds
-  // Read temperature as Celsius (the default)
-  float t = dht.readTemperature();
-  if (isnan(t))
-  {
-    Serial.println("Failed to read from DHT sensor!");
-    return -1;
-  }
-  else
-  {
-    // Serial.println(t);
-    String strValue = "Temperature " + String(t) + "°C";
-    mqttManager->publish(tempTopic, strValue.c_str());
-    return t;
-  }
-}
+// float readDHTTemperature()
+// {
+//   // Sensor readings may also be up to 2 seconds
+//   // Read temperature as Celsius (the default)
+//   float t = dht.readTemperature();
+//   if (isnan(t))
+//   {
+//     Serial.println("Failed to read from DHT sensor!");
+//     return -1;
+//   }
+//   else
+//   {
+//     // Serial.println(t);
+//     String strValue = "Temperature " + String(t) + "°C";
+//     mqttManager->publish(tempTopic, strValue.c_str());
+//     return t;
+//   }
+// }
 
-float readDHTHumidity()
-{
-  // Sensor readings may also be up to 2 seconds
-  float h = dht.readHumidity();
-  if (isnan(h))
-  {
-    Serial.println("Failed to read from DHT sensor!");
-    return -1;
-  }
-  else
-  {
-    // Serial.println(h);
-    String strValue = "Humidity " + String(h) + "%";
-    mqttManager->publish(tempTopic, strValue.c_str());
-    return h;
-  }
-}
+// float readDHTHumidity()
+// {
+//   // Sensor readings may also be up to 2 seconds
+//   float h = dht.readHumidity();
+//   if (isnan(h))
+//   {
+//     Serial.println("Failed to read from DHT sensor!");
+//     return -1;
+//   }
+//   else
+//   {
+//     // Serial.println(h);
+//     String strValue = "Humidity " + String(h) + "%";
+//     mqttManager->publish(tempTopic, strValue.c_str());
+//     return h;
+//   }
+// }

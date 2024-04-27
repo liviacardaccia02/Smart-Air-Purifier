@@ -45,7 +45,7 @@ void SensorHandler::calibrate()
       ;
   }
 
-  Serial.print("Calibrating please wait.");
+  Serial.print("Calibrating MQ7 sensor please wait ...");
   calcR0 = 0;
   for (int i = 1; i <= 10; i++)
   {
@@ -58,33 +58,16 @@ void SensorHandler::calibrate()
 
   if (isinf(calcR0))
   {
-    Serial.println("Warning: Conection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
+    Serial.println("Warning: Connection issue, R0 is infinite (Open circuit detected) please check your wiring and supply");
     while (1)
       ;
   }
   if (calcR0 == 0)
   {
-    Serial.println("Warning: Conection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
+    Serial.println("Warning: Connection issue found, R0 is zero (Analog pin shorts to ground) please check your wiring and supply");
     while (1)
       ;
   }
-}
-
-void SensorHandler::heatMQ7(int PWMpin)
-{
-  Serial.println("60 sec heating cycle...");
-  analogWrite(PWMpin, 255);
-  MQ7->update();
-  MQ7->readSensor();
-  MQ7->serialDebug();
-  delay(60000);
-
-  Serial.println("90 sec heating cycle...");
-  analogWrite(PWMpin, 20);
-  MQ7->update();
-  MQ7->readSensor();
-  MQ7->serialDebug();
-  delay(90000);
 }
 
 void SensorHandler::read()
@@ -93,18 +76,15 @@ void SensorHandler::read()
   MQ7->setA(605.18);
   MQ7->setB(-3.937);
   MQ7CO = MQ7->readSensor();
-  // String strValue = "CO concentration: " + String(COMQ7) + "ppm";
-  // mqttManager->publish(COtopic, strValue.c_str());
 
   MQ135->update();
-
   MQ135->setA(605.18);
   MQ135->setB(-3.937);
   MQ135CO = MQ135->readSensor();
 
   MQ135->setA(77.255);
   MQ135->setB(-3.18);
-  Alcohol = MQ135->readSensor();
+  alcohol = MQ135->readSensor();
 
   MQ135->setA(110.47);
   MQ135->setB(-2.862);
@@ -112,7 +92,7 @@ void SensorHandler::read()
 
   MQ135->setA(44.947);
   MQ135->setB(-3.445);
-  Toluen = MQ135->readSensor();
+  toluen = MQ135->readSensor();
 
   MQ135->setA(102.2);
   MQ135->setB(-2.473);
@@ -120,28 +100,50 @@ void SensorHandler::read()
 
   MQ135->setA(34.668);
   MQ135->setB(-3.369);
-  Aceton = MQ135->readSensor();
+  aceton = MQ135->readSensor();
+
+  temperature = dht->readTemperature();
+  humidity = dht->readHumidity();
 
   delay(500);
 }
 
 void SensorHandler::debug()
 {
-  Serial.println("** Values from MQ-7 & MQ-135 ****");
-  Serial.println("|   MQ7   |   CO   |  Alcohol |  CO2  |  Toluen  |  NH4  |  Aceton  |");
+  Serial.println("*** Values from sensors ***");
+  Serial.println("|   MQ7   |   CO   |  Alcohol |  CO2  |  Toluen  |  NH4  |  Aceton  |  Temp  |  Humidity  |");
   Serial.print("|   ");
   Serial.print(MQ7CO);
   Serial.print("|   ");
   Serial.print(MQ135CO);
   Serial.print("   |   ");
-  Serial.print(Alcohol);
+  Serial.print(alcohol);
   Serial.print("   |   ");
-  Serial.print(CO2 + 421); // 421ppm offset due to current pollution
+  Serial.print(CO2 + PollutionOffeset); 
   Serial.print("   |   ");
-  Serial.print(Toluen);
+  Serial.print(toluen);
   Serial.print("   |   ");
   Serial.print(NH4);
   Serial.print("   |   ");
-  Serial.print(Aceton);
+  Serial.print(aceton);
+  Serial.print("   |   ");
+  Serial.print(temperature);
+  Serial.print("   |   ");
+  Serial.print(humidity);
   Serial.println("   |");
+}
+
+String SensorHandler::encode()
+{
+  StaticJsonDocument<200> jsonDoc;
+
+  jsonDoc["CO"] = MQ7CO;
+  jsonDoc["CO2"] = CO2 + PollutionOffeset;
+  jsonDoc["temperature"] = temperature;
+  jsonDoc["humidity"] = humidity;
+
+  String jsonString;
+  serializeJson(jsonDoc, jsonString);
+
+  return jsonString;
 }
