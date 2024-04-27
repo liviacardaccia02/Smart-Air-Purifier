@@ -93,7 +93,7 @@ void handleRoot()
       </p>\
   </body>\
 </html>",
-           readDHTTemperature(), readDHTHumidity());
+           dht.readTemperature(), dht.readHumidity());
   server.send(200, "text/html", msg);
 }
 

@@ -135,7 +135,7 @@ void SensorHandler::debug()
 
 String SensorHandler::encode()
 {
-  StaticJsonDocument<200> jsonDoc;
+  JsonDocument jsonDoc;
 
   jsonDoc["CO"] = MQ7CO;
   jsonDoc["CO2"] = CO2 + PollutionOffeset;
