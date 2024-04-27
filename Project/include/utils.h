@@ -7,8 +7,8 @@
 #define PWMFANPIN 2
 #define DHTPIN 4 
 #define MQ135PIN 5
-#define MQ7PIN 14
-#define PWMMQ7PIN 13
+#define MQ7PIN 6 // A0 input
+#define PWMMQ7PIN 7 // D0 -> mosfet output
 #define GREENLEDPIN 43
 #define REDLEDPIN 44
 #define VoltageResolution 5

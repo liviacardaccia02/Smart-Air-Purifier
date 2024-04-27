@@ -25,6 +25,9 @@ const int minTemp = 26;
 const int maxTemp = 28;
 const int minSpeed = 0;
 const int maxSpeed = 255;
+unsigned long int lastHeatingTime = 0;
+bool highVoltage = true;
+int fanSpeed = 0;
 
 WiFiClient espClient;
 
@@ -40,6 +43,7 @@ DHT dht(DHTPIN, DHTTYPE);
 MQUnifiedsensor MQ135("ESP32", VoltageResolution, ADCBitResolution, MQ135PIN, "MQ-135");
 MQUnifiedsensor MQ7("ESP32", VoltageResolution, ADCBitResolution, MQ7PIN, "MQ-7");
 
+void heatingTask(void *parameter);
 float readDHTTemperature();
 float readDHTHumidity();
 
@@ -116,6 +120,7 @@ void setup(void)
   wifiManager->connect();
   mqttManager->connect();
   sensorHandler->setUp();
+  sensorHandler->calibrate();
   // mqttManager->subscribe(topic, callback);
 
   delay(100);
@@ -129,7 +134,7 @@ void setup(void)
   server.begin();
   Serial.println("HTTP server started");
 
-  // sensorHandler->calibrate();
+  xTaskCreate(heatingTask, "HeatingTask", 10000, NULL, 1, NULL);
 }
 
 void loop(void)
@@ -140,12 +145,48 @@ void loop(void)
   wifiManager->checkConnection();
   mqttManager->checkConnection();
 
-  int speed = fanController->calculateFanSpeed(dht.readTemperature());
-  analogWrite(PWMFANPIN, speed);
+  fanSpeed = fanController->calculateFanSpeed(dht.readTemperature());
+  analogWrite(PWMFANPIN, fanSpeed);
 
-  sensorHandler->heatMQ7(PWMMQ7PIN);
   sensorHandler->read();
   sensorHandler->debug();
+}
+
+void heatingTask(void *parameter)
+{
+  // Code for debug purposes, to be removed
+  uint32_t stackPointer = uxTaskGetStackHighWaterMark(NULL);
+  Serial.print("Stack Pointer Value: ");
+  Serial.println(stackPointer);
+
+  if (highVoltage)
+  {
+    lastHeatingTime = millis();
+    while (millis() - lastHeatingTime <= (60 * 1000))
+    {
+      // VH 5 Volts
+      analogWrite(5, 255); // 255 is DC 5V output
+      MQ7.update();        // Update data, the arduino will read the voltage from the analog pin
+      MQ7.readSensor();    // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
+      MQ7.serialDebug();   // Will print the table on the serial port
+      delay(500);          // Sampling frequency
+    }
+    highVoltage = !highVoltage;
+  }
+  else
+  {
+    lastHeatingTime = millis();
+    while (millis() - lastHeatingTime <= (90 * 1000))
+    {
+      // VH 1.4 Volts
+      analogWrite(5, 20); // 255 is 100%, 20.4 is aprox 8% of Duty cycle for 90s
+      MQ7.update();       // Update data, the arduino will read the voltage from the analog pin
+      MQ7.readSensor();   // Sensor will read PPM concentration using the model, a and b values set previously or from the setup
+      MQ7.serialDebug();  // Will print the table on the serial port
+      delay(500);         // Sampling frequency
+    }
+    highVoltage = !highVoltage;
+  }
 }
 
 float readDHTTemperature()
