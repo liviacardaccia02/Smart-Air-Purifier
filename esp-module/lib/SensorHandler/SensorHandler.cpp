@@ -73,8 +73,8 @@ void SensorHandler::calibrate()
 void SensorHandler::read()
 {
   MQ7->update();
-  MQ7->setA(605.18);
-  MQ7->setB(-3.937);
+  MQ7->setA(99.042);
+  MQ7->setB(-1.518);
   MQ7CO = MQ7->readSensor();
 
   MQ135->update();
