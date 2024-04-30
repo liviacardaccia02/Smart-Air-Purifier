@@ -20,10 +20,6 @@ const char *topic = "Smart-air-purifier";
 const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
-const int minTemp = 26;
-const int maxTemp = 28;
-const int minSpeed = 0;
-const int maxSpeed = 255;
 unsigned long int lastHeatingTime = 0;
 bool highVoltage = true;
 int fanSpeed = 0;
@@ -109,7 +105,7 @@ void setup(void)
 
   redLed = new Led(REDLEDPIN);
   greenLed = new Led(GREENLEDPIN);
-  fanController = new FanController(minTemp, maxTemp, minSpeed, maxSpeed);
+  fanController = new FanController();
   mqttManager = new MQTTManager(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
   wifiManager = new WiFiManager(ssid, password, redLed, greenLed);
   sensorHandler = new SensorHandler(&dht, &MQ135, &MQ7);
@@ -133,7 +129,7 @@ void setup(void)
   server.begin();
   Serial.println("HTTP server started");
 
-  //xTaskCreate(heatingTask, "HeatingTask", 10000, NULL, 1, NULL);
+  // xTaskCreate(heatingTask, "HeatingTask", 10000, NULL, 1, NULL);
 }
 
 void loop(void)
@@ -144,11 +140,33 @@ void loop(void)
   wifiManager->checkConnection();
   mqttManager->checkConnection();
 
-  fanSpeed = fanController->calculateFanSpeed(dht.readTemperature());
+  String json = sensorHandler->encode();
+
+  // Parse the JSON-like format string
+  JsonDocument doc;
+  DeserializationError error = deserializeJson(doc, json);
+
+  // Check if parsing was successful
+  if (error)
+  {
+    Serial.print("Failed to parse JSON: ");
+    Serial.println(error.c_str());
+    return;
+  }
+
+  // Retrieve the numerical values from the JSON
+  float temperature = doc["temperature"];
+  float humidity = doc["humidity"];
+  float mq7Value = doc["mq7Value"];
+  float mq135Value = doc["mq135Value"];
+
+  // Calculate the fan speed using the numerical values
+  fanSpeed = fanController->calculateFanSpeed(temperature, mq7Value, mq135Value);
   analogWrite(PWMFANPIN, fanSpeed);
+  Serial.println(fanSpeed);
 
   sensorHandler->read();
-  sensorHandler->debug();
+  //sensorHandler->debug();
 
   mqttManager->publish(topic, sensorHandler->encode().c_str());
 }
