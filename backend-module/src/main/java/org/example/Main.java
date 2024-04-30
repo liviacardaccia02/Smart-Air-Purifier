@@ -1,25 +1,21 @@
 package org.example;
 
-import com.hivemq.client.mqtt.MqttClient;
-import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
-import java.util.UUID;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import mqtt.MQTTAgent;
 
 public class Main {
     public static void main(String[] args) {
-        Mqtt3AsyncClient client = MqttClient.builder()
-                .identifier(UUID.randomUUID().toString())
-                .serverHost("broker.hivemq.com")
-                .serverPort(1883)
-                .useMqttVersion3()
-                .buildAsync();
+        Vertx vertx = Vertx.vertx(new VertxOptions().setMaxEventLoopExecuteTime(Long.MAX_VALUE));
+        MQTTAgent agent = new MQTTAgent();
 
-        client.connect()
-                .thenAccept(connAck -> System.out.println("Connected successfully"))
-                .thenCompose(ack -> client.subscribeWith()
-                        .topicFilter("Smart-air-purifier")
-                        .callback(publish -> System.out.println("Received Message: " + new String(publish.getPayloadAsBytes())))
-                        .send())
-                .thenAccept(subAck -> System.out.println("Subscribed successfully"))
-                .exceptionally(ex -> {ex.printStackTrace(); return null;});
+        vertx.deployVerticle(agent, res -> {
+            if (res.succeeded()) {
+                System.out.println("MQTTAgent verticle deployed successfully");
+            } else {
+                System.out.println("Failed to deploy MQTTAgent verticle");
+                res.cause().printStackTrace();
+            }
+        });
     }
 }
