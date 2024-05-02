@@ -1,0 +1,224 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Smart Air Purifier</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css"
+    />
+  </head>
+  <body class="background-cyan">
+    <div class="container">
+      <div class="dashboard">
+        <div class="dashboard-header">
+          <div class="dashboard-header__title">
+            Air quality monitoring dashboard
+          </div>
+          <div class="dashboard-header__date" id="current-date"></div>
+        </div>
+        <div class="dashboard-card weather">
+          <div class="dashboard-card__title">
+            <span class="wi wi-day-sunny"></span>Weather
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece">
+              <div class="weather-days">
+                <div class="weather-days__item">
+                  <div class="weather-days__title">Today</div>
+                  <div class="weather-days__icon">
+                    <span class="wi wi-day-cloudy"></span>
+                  </div>
+                  <div class="weather-days__humidity">0.2</div>
+                </div>
+                <div class="weather-days__item">
+                  <div class="weather-days__title">Mon</div>
+                  <div class="weather-days__icon">
+                    <span class="wi wi-cloudy"></span>
+                  </div>
+                  <div class="weather-days__humidity">0.4</div>
+                </div>
+                <div class="weather-days__item">
+                  <div class="weather-days__title">Tue</div>
+                  <div class="weather-days__icon">
+                    <span class="wi wi-day-rain"></span>
+                  </div>
+                  <div class="weather-days__humidity">0.7</div>
+                </div>
+                <div class="weather-days__item">
+                  <div class="weather-days__title">Wed</div>
+                  <div class="weather-days__icon">
+                    <span class="wi wi-day-rain"></span>
+                  </div>
+                  <div class="weather-days__humidity">0.9</div>
+                </div>
+                <div class="weather-days__item">
+                  <div class="weather-days__title">Thu</div>
+                  <div class="weather-days__icon">
+                    <span class="wi wi-day-sunny"></span>
+                  </div>
+                  <div class="weather-days__humidity">0.1</div>
+                </div>
+              </div>
+              <a href="#" class="dashboard-card__link" tabindex="1"
+                >View in details<span class="fa fa-angle-right"></span
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card temperature">
+          <div class="dashboard-card__title">
+            <span class="wi wi-thermometer"></span>Temperature
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece">
+              <div class="temperature-stats">
+                <div class="stats__item">
+                  <div class="stats__title">Indoor</div>
+                  <div class="stats__icon">
+                    <span class="fa fa-home"></span>
+                  </div>
+                  <div class="stats__measure">
+                    <div class="stats__value">22</div>
+                    <div class="stats__unit stats__unit_celsius">C</div>
+                  </div>
+                </div>
+                <div class="stats__item">
+                  <div class="stats__title">Outdoor</div>
+                  <div class="stats__icon">
+                    <span class="wi wi-day-cloudy"></span>
+                  </div>
+                  <div class="stats__measure">
+                    <div class="stats__value">18</div>
+                    <div class="stats__unit stats__unit_celsius">C</div>
+                  </div>
+                </div>
+              </div>
+              <a href="#" class="dashboard-card__link" tabindex="1"
+                >Edit<span class="fa fa-angle-right"></span
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card mode">
+          <div class="dashboard-card__title">
+            <span class="fa fa-cogs"></span>Operating Mode
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece">
+              <div class="status">
+                <div class="status__text">Medium</div>
+              </div>
+              <a href="#" class="dashboard-card__link" tabindex="1"
+                >Change<span class="fa fa-angle-right"></span
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card co">
+          <div class="dashboard-card__title">
+            <span class="fa fa-bell-o"></span>Carbon Monoxide Level
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece">
+              <div class="status status_co" id="co-status">
+                <div class="status__text">0 ppm</div>
+              </div>
+              <a href="#" class="dashboard-card__link" tabindex="1"
+                >Edit<span class="fa fa-angle-right"></span
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card co2">
+          <div class="dashboard-card__title">
+            <span class="fa fa-cloud"></span>Carbon Dioxide Level
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece">
+              <div class="status status_co2" id="co2-status">
+                <div class="status__text">0 ppm</div>
+              </div>
+              <a href="#" class="dashboard-card__link" tabindex="1"
+                >Edit<span class="fa fa-angle-right"></span
+              ></a>
+            </div>
+          </div>
+        </div>
+            <div class="dashboard-card energy">
+              <div class="dashboard-card__title">
+                <span class="fa fa-line-chart"></span>Energy Consumption
+              </div>
+              <div class="dashboad-card__content">
+                <canvas class="energy-chart" id="energy-chart" width="400" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+        function getCurrentDate() {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    
+            const currentDate = new Date();
+            const dayOfWeek = days[currentDate.getDay()];
+            const month = months[currentDate.getMonth()];
+            const dayOfMonth = currentDate.getDate();
+            const suffix = getNumberSuffix(dayOfMonth); 
+
+            return `${dayOfWeek}, ${month} ${dayOfMonth}${suffix}`;
+        }
+    
+        function getNumberSuffix(dayOfMonth) {
+            if (dayOfMonth >= 11 && dayOfMonth <= 13) {
+                return 'th';
+            }
+            switch (dayOfMonth % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+    
+        document.getElementById('current-date').textContent = getCurrentDate();
+    </script>    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById("energy-chart").getContext("2d");
+      const energyChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Electricity"],
+          datasets: [
+            {
+              label: "Energy Consumption",
+              data: [19],
+              fill: false,
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
