@@ -5,6 +5,9 @@ import logic.SharedMessage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,16 +38,50 @@ public class HTTPServer {
         server.createContext("/test", new AbstractHandler() {
             @Override
             void handleGetRequest(HttpExchange ex) throws IOException {
+                Path path = Paths.get("../frontend-module/index.html");
+                Path realPath = path.toRealPath();
+                String response = Files.readString(realPath);
+                sendResponse(ex, response);
+            }
+
+            @Override
+            void handlePostRequest(HttpExchange ex) throws IOException {
+
+            }
+        });
+
+        server.createContext("/style.css", new AbstractHandler() {
+            @Override
+            void handleGetRequest(HttpExchange ex) throws IOException {
+                Path path = Paths.get("../frontend-module/style.css");
+                Path realPath = path.toRealPath();
+                String response = Files.readString(realPath);
+                ex.getResponseHeaders().set("Content-Type", "text/css");
+                sendResponse(ex, response);
+            }
+
+            @Override
+            void handlePostRequest(HttpExchange ex) throws IOException {
+
+            }
+        });
+
+        server.createContext("/data", new AbstractHandler() {
+            @Override
+            void handleGetRequest(HttpExchange ex) throws IOException {
                 synchronized (temperature) {
                     synchronized (humidity) {
                         synchronized (COlevel) {
                             synchronized (CO2level) {
                                 synchronized (fanSpeed) {
-                                    String response = "Temperature: " + temperature.getMessage() + "\n"
-                                            + "Humidity: " + humidity.getMessage() + "\n"
-                                            + "CO level: " + COlevel.getMessage() + "\n"
-                                            + "CO2 level: " + CO2level.getMessage() + "\n"
-                                            + "Fan speed: " + fanSpeed.getMessage();
+                                    String response = "{"
+                                            + "\"Temperature\": " + temperature.getMessage() + ","
+                                            + "\"Humidity\": " + humidity.getMessage() + ","
+                                            + "\"CO level\": " + COlevel.getMessage() + ","
+                                            + "\"CO2 level\": " + CO2level.getMessage() + ","
+                                            + "\"Fan speed\": " + fanSpeed.getMessage()
+                                            + "}";
+                                    ex.getResponseHeaders().set("Content-Type", "application/json");
                                     sendResponse(ex, response);
                                 }
                             }
