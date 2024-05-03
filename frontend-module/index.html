@@ -103,9 +103,6 @@
                   </div>
                 </div>
               </div>
-              <a href="#" class="dashboard-card__link" tabindex="1"
-                >Edit<span class="fa fa-angle-right"></span
-              ></a>
             </div>
           </div>
         </div>
@@ -133,9 +130,6 @@
               <div class="status status_co" id="co-status">
                 <div class="status__text">0 ppm</div>
               </div>
-              <a href="#" class="dashboard-card__link" tabindex="1"
-                >Edit<span class="fa fa-angle-right"></span
-              ></a>
             </div>
           </div>
         </div>
@@ -148,9 +142,6 @@
               <div class="status status_co2" id="co2-status">
                 <div class="status__text">0 ppm</div>
               </div>
-              <a href="#" class="dashboard-card__link" tabindex="1"
-                >Edit<span class="fa fa-angle-right"></span
-              ></a>
             </div>
           </div>
         </div>
@@ -200,16 +191,14 @@
       const energyChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: ["Electricity"],
-          datasets: [
-            {
-              label: "Energy Consumption",
-              data: [19],
-              fill: false,
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 2,
-            },
-          ],
+        labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
+        datasets: [{
+            label: "Energy Consumption",
+            data: [19, 22, 18, 25, 20],
+            fill: false,
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 2,
+        }],
         },
         options: {
           scales: {
