@@ -12,20 +12,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.sun.net.httpserver.HttpServer;
+import utils.Pair;
+import utils.Logger;
 
 public class HTTPServer {
     private final SharedMessage<Float> temperature;
     private final SharedMessage<Float> humidity;
     private final SharedMessage<Float> COlevel;
     private final SharedMessage<Float> CO2level;
-    private final SharedMessage<Integer> fanSpeed;
+    private final SharedMessage<Pair<String, Long>> fanSpeed;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public HTTPServer(SharedMessage<Float> temperature,
                       SharedMessage<Float> humidity,
                       SharedMessage<Float> COlevel,
                       SharedMessage<Float> CO2level,
-                      SharedMessage<Integer> fanSpeed) {
+                      SharedMessage<Pair<String, Long>> fanSpeed) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.COlevel = COlevel;
@@ -35,7 +37,7 @@ public class HTTPServer {
 
     public void start() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8000), 0);
-        server.createContext("/test", new AbstractHandler() {
+        server.createContext("/home", new AbstractHandler() {
             @Override
             void handleGetRequest(HttpExchange ex) throws IOException {
                 Path path = Paths.get("../frontend-module/index.html");
@@ -98,6 +100,6 @@ public class HTTPServer {
 
         server.setExecutor(executor);
         server.start();
-        System.out.println("HTTP server started");
+        Logger.success("HTTP server started");
     }
 }

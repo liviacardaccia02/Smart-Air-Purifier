@@ -5,6 +5,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import logic.SharedMessage;
 import mqtt.MQTTAgent;
+import utils.Pair;
 
 import java.io.IOException;
 
@@ -14,10 +15,10 @@ public class Main {
         SharedMessage<Float> humidity = new SharedMessage<>(0.0f);
         SharedMessage<Float> COlevel = new SharedMessage<>(0.0f);
         SharedMessage<Float> CO2level = new SharedMessage<>(0.0f);
-        SharedMessage<Integer> fanSpeed = new SharedMessage<>(0);
+        SharedMessage<Pair<String, Long>> fanSpeed = new SharedMessage<>();
 
         Vertx vertx = Vertx.vertx(new VertxOptions().setMaxEventLoopExecuteTime(Long.MAX_VALUE));
-        MQTTAgent agent = new MQTTAgent();
+        MQTTAgent agent = new MQTTAgent(fanSpeed);
         HTTPServer httpServer = new HTTPServer(temperature, humidity, COlevel, CO2level, fanSpeed);
 
         vertx.deployVerticle(agent, res -> {

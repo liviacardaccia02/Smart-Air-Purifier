@@ -5,57 +5,67 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.mqtt.MqttClient;
+import logic.SharedMessage;
+import utils.Pair;
+import utils.Logger;
 
 public class MQTTAgent extends AbstractVerticle {
 
     private MqttClient client;
+    private final SharedMessage<Pair<String, Long>> fanSpeed;
+
+    public MQTTAgent(SharedMessage<Pair<String, Long>> fanSpeed) {
+        this.fanSpeed = fanSpeed;
+        this.fanSpeed.addSpeedChangeListener(message -> this.publishMessage("Smart-air-purifier", String.valueOf(message)));
+    }
 
     @Override
     public void start() {
         client = MqttClient.create(vertx);
         client.connect(1883, "broker.hivemq.com", s -> {
             if (s.succeeded()) {
-                System.out.println("Connected to a server");
+                Logger.success("Connected to a server");
                 subscribeToTopic("Smart-air-purifier");
             } else {
-                System.out.println("Failed to connect to a server");
+                Logger.error("Failed to connect to a server");
             }
-        });
-
-        vertx.setPeriodic(5000, id -> {
-            publishMessage("test/topic", "Hello from Vert.x");
-        });
-
-        // Add a publish handler to print received messages
-        client.publishHandler(message -> {
-            String topicName = message.topicName();
-            String payload = message.payload().toString();
-            System.out.println("Received message on topic " + topicName + ": " + payload);
         });
     }
 
     private void publishMessage(String topic, String message) {
-        Buffer buffer = Buffer.buffer(message);
-        client.publish("test/topic", buffer, MqttQoS.AT_LEAST_ONCE, false, false);
-    }
-
-    private void subscribeToTopic(String topic) {
-        client.subscribe(topic, MqttQoS.AT_LEAST_ONCE.value(), this::handleSubscribe);
-    }
-
-    private void handleSubscribe(AsyncResult<Integer> res) {
-        if (res.succeeded()) {
-            System.out.println("Subscribed to topic");
-        } else {
-            System.out.println("Failed to subscribe to topic");
+        if (message != null) {
+            Buffer buffer = Buffer.buffer(message);
+            client.publish(topic, buffer, MqttQoS.AT_LEAST_ONCE, false, false, this::handlePublishing);
+            Logger.info("Published message to topic" + topic);
         }
     }
 
-    private void handlePublish(AsyncResult<Integer> res) {
+    private void subscribeToTopic(String topic) {
+        client.publishHandler(s -> {
+            String message = s.payload().toString();
+            setSpeed(message);
+        }).subscribe(topic, MqttQoS.AT_LEAST_ONCE.value(), this::handleSubscription);
+    }
+
+    private void handleSubscription(AsyncResult<Integer> res) {
         if (res.succeeded()) {
-            System.out.println("Message published");
+            Logger.success("Subscribed to topic");
         } else {
-            System.out.println("Failed to publish message");
+            Logger.error("Failed to subscribe to topic");
+        }
+    }
+
+    private void handlePublishing(AsyncResult<Integer> handler) {
+        if (handler.succeeded()) {
+            Logger.success("Published message to topic");
+        } else {
+            Logger.error("Failed to publish message to topic");
+        }
+    }
+
+    private void setSpeed(String message) {
+        synchronized (fanSpeed) {
+            fanSpeed.setMessage(new Pair<>(message, System.currentTimeMillis()));
         }
     }
 }
