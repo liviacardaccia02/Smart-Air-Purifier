@@ -5,6 +5,7 @@ import logic.SharedMessage;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,14 +21,14 @@ public class HTTPServer {
     private final SharedMessage<Float> humidity;
     private final SharedMessage<Float> COlevel;
     private final SharedMessage<Float> CO2level;
-    private final SharedMessage<Pair<String, Long>> fanSpeed;
+    private final SharedMessage<String> fanSpeed;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public HTTPServer(SharedMessage<Float> temperature,
                       SharedMessage<Float> humidity,
                       SharedMessage<Float> COlevel,
                       SharedMessage<Float> CO2level,
-                      SharedMessage<Pair<String, Long>> fanSpeed) {
+                      SharedMessage<String> fanSpeed) {
         this.temperature = temperature;
         this.humidity = humidity;
         this.COlevel = COlevel;
@@ -94,7 +95,13 @@ public class HTTPServer {
 
             @Override
             void handlePostRequest(HttpExchange ex) throws IOException {
-
+                String speed = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                synchronized (fanSpeed) {
+                    fanSpeed.setMessage(speed);
+                    fanSpeed.notifyAll();
+                    Logger.info("Speed: " + fanSpeed.getMessage());
+                }
+                sendResponse(ex, "POST received");
             }
         });
 

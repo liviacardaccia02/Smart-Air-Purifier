@@ -15,7 +15,7 @@ public class Main {
         SharedMessage<Float> humidity = new SharedMessage<>(0.0f);
         SharedMessage<Float> COlevel = new SharedMessage<>(0.0f);
         SharedMessage<Float> CO2level = new SharedMessage<>(0.0f);
-        SharedMessage<Pair<String, Long>> fanSpeed = new SharedMessage<>();
+        SharedMessage<String> fanSpeed = new SharedMessage<>("OFF");
 
         Vertx vertx = Vertx.vertx(new VertxOptions().setMaxEventLoopExecuteTime(Long.MAX_VALUE));
         MQTTAgent agent = new MQTTAgent(fanSpeed);

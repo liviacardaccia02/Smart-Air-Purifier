@@ -6,15 +6,14 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.mqtt.MqttClient;
 import logic.SharedMessage;
-import utils.Pair;
 import utils.Logger;
 
 public class MQTTAgent extends AbstractVerticle {
 
     private MqttClient client;
-    private final SharedMessage<Pair<String, Long>> fanSpeed;
+    private final SharedMessage<String> fanSpeed;
 
-    public MQTTAgent(SharedMessage<Pair<String, Long>> fanSpeed) {
+    public MQTTAgent(SharedMessage<String> fanSpeed) {
         this.fanSpeed = fanSpeed;
         this.fanSpeed.addSpeedChangeListener(message -> this.publishMessage("Smart-air-purifier", String.valueOf(message)));
     }
@@ -65,7 +64,7 @@ public class MQTTAgent extends AbstractVerticle {
 
     private void setSpeed(String message) {
         synchronized (fanSpeed) {
-            fanSpeed.setMessage(new Pair<>(message, System.currentTimeMillis()));
+            fanSpeed.setMessage(message);
         }
     }
 }
