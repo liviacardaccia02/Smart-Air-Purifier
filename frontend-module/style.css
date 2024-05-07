@@ -8,8 +8,8 @@
     --color-text-secondary: #989898;
     --color-very-light-cyan: #f2f5f6;
     --color-bg-light-gray: #dfdfdf;
-    --color-success: #6b9d38;
-    --color-danger: #de7f7f;
+    --color-success: #5cab0e;
+    --color-danger: #de3535;
     --color-primary: #65b6d5;
     --color-secondary: #9fc0cd;
     --color-text-1: #333;
@@ -90,6 +90,8 @@ body {
     display: flex;
     flex-direction: row;
     padding: 0.5rem;
+    position: relative;
+    height: 20px;
 }
 
 .dashboard-card__card-piece {
@@ -111,6 +113,9 @@ body {
     padding: .75rem 1rem;
     transition: background-color .25s;
     user-select: none;
+    position:absolute;
+    bottom: 0;
+    right: 0;
 }
 
 .dashboard-card__link:hover {
@@ -134,18 +139,21 @@ body {
     text-align: center;
 }
 
+.status-container {
+    height: 150px;
+}
+
 .status__icon {
     font-size: 250%;
 }
 
 .status__text {
     text-transform: uppercase;
-    padding: 5%;
     text-align: center;
 }
 
 .status_co, .status_co2 {
-    color: #59A470; 
+    color: var(--color-success); 
     text-transform: uppercase;
     font-weight: bold;
     font-size: 1.5rem;
@@ -155,7 +163,7 @@ body {
 }
 
 .status_co.high, .status_co2.high {
-    color: #EA3328; 
+    color: var(--color-danger); 
     text-transform: uppercase;
     font-weight: bold;
     font-size: 1.5rem;
@@ -169,7 +177,7 @@ body {
     flex: 1;
     display: flex;
     margin: 0 1rem;
-    padding: 1%;
+    padding: 2%;
 }
 
 .weather-days__item {
@@ -329,10 +337,6 @@ body {
 .mode .status__text {
     text-transform: uppercase;
     font-weight: bold;
-}
-
-.mode .dashboard-card__title .fa {
-    font-size: 150%;
 }
 
 .energy {
