@@ -10,22 +10,25 @@ FanController::FanController()
     this->maxCoLevel = MAX_CO_LEVEL;
     this->minCo2Level = MIN_CO2_LEVEL;
     this->maxCo2Level = MAX_CO2_LEVEL;
+    this->tWeight = TEMPERATURE_WEIGHT;
+    this->co2Weight = CO2_LEVEL_WEIGHT;
+    this->coWeight = CO_LEVEL_WEIGHT;
 }
 
-// int FanController::calculateFanSpeed(float temp)
-// {
-//     int temperature = constrain(temp, minTemp, maxTemp);
-//     return map(temperature, minTemp, maxTemp, minSpeed, maxSpeed);
-// }
+void FanController::initializeSpeedTable()
+{
+    speedTable.insert(make_pair(0.0f, minSpeed));
+    speedTable.insert(make_pair(0.5f, (minSpeed + maxSpeed) / 2));
+    speedTable.insert(make_pair(1.0f, maxSpeed));
+}
 
 int FanController::calculateFanSpeed(float temp, float coLevel, float co2Level)
 {
-    int temperature = constrain(temp, minTemp, maxTemp);
-    int coSpeed = map(coLevel, minCoLevel, maxCoLevel, minSpeed, maxSpeed);
-    int co2Speed = map(co2Level, minCo2Level, maxCo2Level, minSpeed, maxSpeed);
+    float weightedScore = temp * tWeight + co2Level * co2Weight + coLevel * coWeight;
+    auto bound = speedTable.lower_bound(weightedScore);
 
-    // Calculate the average speed based on temperature, CO level, and CO2 level
-    int averageSpeed = (temperature + coSpeed + co2Speed) / 3;
-
-    return constrain(averageSpeed, minSpeed, maxSpeed);
+    if (bound == speedTable.end()) {
+      return speedTable.rbegin()->second;
+    }
+    return bound->second;
 }
