@@ -20,6 +20,7 @@
       async
       defersrc="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
     ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="background-cyan">
     <div class="container">
@@ -70,7 +71,7 @@
               <div class="status">
                 <div class="status__text">Automatic</div>
               </div>
-              <div class="dropdown">
+              <div class="card-footer">
                 <label class="switch">
                   <input type="checkbox" />
                   <span class="slider round"></span>
@@ -88,7 +89,7 @@
               <div class="status">
                 <div class="status__text">Medium</div>
               </div>
-              <div class="dropdown">
+              <div class="dropdown card-footer">
                 <button class="dropbtn">Change</button>
                 <div class="dropdown-content">
                   <a id="dropdown-off" class="dropdown-off" href="#">Off</a>

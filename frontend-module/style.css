@@ -117,7 +117,7 @@ body {
 }
 
 .status-container {
-    height: 150px;
+    height: 200px;
 }
 
 .status__icon {
@@ -224,9 +224,16 @@ body {
     grid-column: 1;
 }
 
+.card-footer {
+    display: flex;
+    align-items: center;
+    height: 25%;
+}
+
 .fan-speed {
     grid-row: 2;
     grid-column: 2;
+    overflow: visible;
 }
 
 .mode {
@@ -254,6 +261,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    height: 75%;
 }
 
 .status__text {
@@ -327,30 +335,30 @@ input:checked+.slider:before {
 .dropbtn {
     background-color: var(--color-primary);
     color: var(--color-very-light-cyan);
-    padding: 16px;
+    padding: 0 16px;
     font-size: 16px;
     border: none;
-    position: absolute;
     top: -15px;
     /* Adjust the value to move the button up */
     right: 0;
+    height: 100%;
 }
 
 .dropdown {
     position: relative;
     display: inline-block;
     width: 100px;
-    height: 15px;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
+    background-color: white;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     top: 100%;
     /* Position the dropdown content below the button */
-    right: 0;
+    left: 0;
 }
 
 .dropdown-content a {
