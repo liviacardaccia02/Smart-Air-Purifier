@@ -1,22 +1,23 @@
 function fetchData() {
-    fetch("http://localhost:8000/home"), {
+    fetch("http://localhost:8000/data", {
         method: "GET",
         mode: "cors",
         headers: {
             "Content-Type": "text/plain",
         },
-    }
+    })
         .then(response => response.json())
         .then(data => {
+            console.log(data);
             // Process the fetched data here
             speed = data.speed;
             document.getElementById('co-status').textContent = `${data.co} ppm`;
             document.getElementById('co2-status').textContent = `${data.co2} ppm`;
         })
-        .catch(error => {
-            // Handle any errors that occur during the fetch request
-            console.error(error);
-        });
+    // .catch(error => {
+    //     // Handle any errors that occur during the fetch request
+    //     console.error(error);
+    // });
 }
 
 function getCurrentDate() {
@@ -74,19 +75,22 @@ function handleDropdownClick(option) {
     document.getElementById("dropdown-content").textContent = option;
 }
 
-document.getElementById("dropdown-off").addEventListener("click", () => {
-    handleDropdownClick("Off");
-});
 
-document.getElementById("dropdown-medium").addEventListener("click", () => {
-    handleDropdownClick("Medium");
-});
-
-document.getElementById("dropdown-high").addEventListener("click", () => {
-    handleDropdownClick("High");
-});
 
 window.onload = () => {
+
+    document.getElementById("dropdown-off").addEventListener("click", () => {
+        handleDropdownClick("Off");
+    });
+
+    document.getElementById("dropdown-medium").addEventListener("click", () => {
+        handleDropdownClick("Medium");
+    });
+
+    document.getElementById("dropdown-high").addEventListener("click", () => {
+        handleDropdownClick("High");
+    });
+
     fetchData();
     document.getElementById("current-date").textContent = getCurrentDate();
     drawChart();
