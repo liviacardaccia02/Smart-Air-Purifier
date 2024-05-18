@@ -105,6 +105,22 @@ public class HTTPServer {
             }
         });
 
+        server.createContext("/script.js", new AbstractHandler() {
+            @Override
+            void handleGetRequest(HttpExchange ex) throws IOException {
+                Path path = Paths.get("../frontend-module/script.js");
+                Path realPath = path.toRealPath();
+                String response = Files.readString(realPath);
+                ex.getResponseHeaders().set("Content-Type", "application/javascript");
+                sendResponse(ex, response);
+            }
+
+            @Override
+            void handlePostRequest(HttpExchange ex) throws IOException {
+
+            }
+        });
+
         server.setExecutor(executor);
         server.start();
         Logger.success("HTTP server started");
