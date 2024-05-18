@@ -82,8 +82,8 @@ public class HTTPServer {
                                             + "\"Humidity\": " + humidity.getMessage() + ","
                                             + "\"CO level\": " + COlevel.getMessage() + ","
                                             + "\"CO2 level\": " + CO2level.getMessage() + ","
-                                            + "\"Fan speed\": " + fanSpeed.getMessage()
-                                            + "}";
+                                            + "\"Fan speed\": \"" + fanSpeed.getMessage()
+                                            + "\"}";
                                     ex.getResponseHeaders().set("Content-Type", "application/json");
                                     sendResponse(ex, response);
                                 }
