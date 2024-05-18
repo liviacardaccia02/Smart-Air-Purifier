@@ -70,6 +70,24 @@ function drawChart() {
     });
 }
 
+function handleDropdownClick(option) {
+    document.getElementById("dropdown-content").textContent = option;
+}
+
+document.getElementById("dropdown-off").addEventListener("click", () => {
+    handleDropdownClick("Off");
+});
+
+document.getElementById("dropdown-medium").addEventListener("click", () => {
+    handleDropdownClick("Medium");
+});
+
+document.getElementById("dropdown-high").addEventListener("click", () => {
+    handleDropdownClick("High");
+});
+
 window.onload = () => {
+    fetchData();
+    document.getElementById("current-date").textContent = getCurrentDate();
     drawChart();
 }

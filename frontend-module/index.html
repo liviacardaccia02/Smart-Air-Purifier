@@ -6,7 +6,7 @@
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
     <title>Smart Air Purifier</title>
-
+    <script src="script.js"></script>
     <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
@@ -16,6 +16,10 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css"
     />
+    <script
+      async
+      defersrc="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+    ></script>
   </head>
   <body class="background-cyan">
     <div class="container">
@@ -26,52 +30,6 @@
           </div>
           <div class="dashboard-header__date" id="current-date"></div>
         </div>
-        <div class="dashboard-card weather">
-          <div class="dashboard-card__title">
-            <span class="wi wi-day-sunny"></span>Weather
-          </div>
-          <div class="dashboad-card__content">
-            <div class="dashboard-card__card-piece">
-              <div class="weather-days">
-                <div class="weather-days__item">
-                  <div class="weather-days__title">Today</div>
-                  <div class="weather-days__icon">
-                    <span class="wi wi-day-cloudy"></span>
-                  </div>
-                  <div class="weather-days__humidity">0.2</div>
-                </div>
-                <div class="weather-days__item">
-                  <div class="weather-days__title">Mon</div>
-                  <div class="weather-days__icon">
-                    <span class="wi wi-cloudy"></span>
-                  </div>
-                  <div class="weather-days__humidity">0.4</div>
-                </div>
-                <div class="weather-days__item">
-                  <div class="weather-days__title">Tue</div>
-                  <div class="weather-days__icon">
-                    <span class="wi wi-day-rain"></span>
-                  </div>
-                  <div class="weather-days__humidity">0.7</div>
-                </div>
-                <div class="weather-days__item">
-                  <div class="weather-days__title">Wed</div>
-                  <div class="weather-days__icon">
-                    <span class="wi wi-day-rain"></span>
-                  </div>
-                  <div class="weather-days__humidity">0.9</div>
-                </div>
-                <div class="weather-days__item">
-                  <div class="weather-days__title">Thu</div>
-                  <div class="weather-days__icon">
-                    <span class="wi wi-day-sunny"></span>
-                  </div>
-                  <div class="weather-days__humidity">0.1</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         <div class="dashboard-card temperature">
           <div class="dashboard-card__title">
             <span class="wi wi-thermometer"></span>Temperature
@@ -80,7 +38,7 @@
             <div class="dashboard-card__card-piece">
               <div class="temperature-stats">
                 <div class="stats__item">
-                  <div class="stats__title">Indoor</div>
+                  <div class="stats__title">Temperature</div>
                   <div class="stats__icon">
                     <span class="fa fa-home"></span>
                   </div>
@@ -90,9 +48,9 @@
                   </div>
                 </div>
                 <div class="stats__item">
-                  <div class="stats__title">Outdoor</div>
+                  <div class="stats__title">Humidity</div>
                   <div class="stats__icon">
-                    <span class="wi wi-day-cloudy"></span>
+                    <span class="fa fa-tint"></span>
                   </div>
                   <div class="stats__measure">
                     <div class="stats__value">18</div>
@@ -110,76 +68,153 @@
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece status-container">
               <div class="status">
+                <div class="status__text">Automatic</div>
+              </div>
+              <div class="dropdown">
+                <label class="switch">
+                  <input type="checkbox" />
+                  <span class="slider round"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card fan-speed">
+          <div class="dashboard-card__title">
+            <span class="fa fa-spinner"></span>Fan Speed
+          </div>
+          <div class="dashboad-card__content">
+            <div class="dashboard-card__card-piece status-container">
+              <div class="status">
                 <div class="status__text">Medium</div>
               </div>
-              <a href="#" class="dashboard-card__link" tabindex="1"
-                >Change<span class="fa fa-angle-right"></span
-              ></a>
+              <div class="dropdown">
+                <button class="dropbtn">Change</button>
+                <div class="dropdown-content">
+                  <a id="dropdown-off" class="dropdown-off" href="#">Off</a>
+                  <a id="dropdown-medium" class="dropdown-medium" href="#"
+                    >Medium</a
+                  >
+                  <a id="dropdown-high" class="dropdown-high" href="#">High</a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="dashboard-card co">
+        <div class="air-quality-gases">
+          <div class="dashboard-card air-quality">
+            <div class="dashboard-card__title">
+              <span class="wi wi-day-haze"></span> Air Quality
+            </div>
+            <div class="dashboad-card__content">
+              <div class="dashboard-card__card-piece">
+                <div class="air-quality-data">
+                  <div class="air-quality-data__value">
+                    Air Quality Index: 12<span
+                      id="aqi-index"
+                      class="aqi-index"
+                    ></span>
+                  </div>
+                  <div class="air-quality-data__value">
+                    Dominant Pollutant: CO2
+                    <span
+                      id="dominant-pollutant"
+                      class="dominant-pollutant"
+                    ></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-card co">
+            <div class="dashboard-card__title">
+              <span class="fa fa-bell-o"></span>Carbon Monoxide Level
+            </div>
+            <div class="dashboad-card__content">
+              <div class="dashboard-card__card-piece">
+                <div class="status_co" id="co-status">
+                  <div class="status__text">0 ppm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-card co2">
+            <div class="dashboard-card__title">
+              <span class="fa fa-cloud"></span>Carbon Dioxide Level
+            </div>
+            <div class="dashboad-card__content">
+              <div class="dashboard-card__card-piece">
+                <div class="status_co2" id="co2-status">
+                  <div class="status__text">0 ppm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-card energy">
           <div class="dashboard-card__title">
-            <span class="fa fa-bell-o"></span>Carbon Monoxide Level
+            <span class="fa fa-line-chart"></span>Energy Consumption
           </div>
           <div class="dashboad-card__content">
-            <div class="dashboard-card__card-piece">
-              <div class="status status_co" id="co-status">
-                <div class="status__text">0 ppm</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="dashboard-card co2">
-          <div class="dashboard-card__title">
-            <span class="fa fa-cloud"></span>Carbon Dioxide Level
-          </div>
-          <div class="dashboad-card__content">
-            <div class="dashboard-card__card-piece">
-              <div class="status status_co2" id="co2-status">
-                <div class="status__text">0 ppm</div>
-              </div>
-            </div>
-          </div>
-        </div>
-            <div class="dashboard-card energy">
-              <div class="dashboard-card__title">
-                <span class="fa fa-line-chart"></span>Energy Consumption
-              </div>
-              <div class="dashboad-card__content">
-                <canvas class="energy-chart" id="energy-chart" width="400" height="200"></canvas>
-              </div>
-            </div>
+            <canvas
+              class="energy-chart"
+              id="energy-chart"
+              width="400"
+              height="200"
+            ></canvas>
           </div>
         </div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       function fetchData() {
-        fetch("http://localhost:8000/home"), {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Content-Type": "text/plain",
-            },
-        }
-            .then(response => response.json())
-            .then(data => {
-                // Process the fetched data here
-                speed = data.speed;
-                document.getElementById('co-status').textContent = `${data.co} ppm`;
-                document.getElementById('co2-status').textContent = `${data.co2} ppm`;
-            })
-            .catch(error => {
-                // Handle any errors that occur during the fetch request
-                console.error(error);
-            });
+        fetch("http://localhost:8000/home", {
+          method: "GET",
+          mode: "cors",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Process the fetched data here
+            speed = data.speed;
+            document.getElementById("co-status").textContent = `${data.co} ppm`;
+            document.getElementById(
+              "co2-status"
+            ).textContent = `${data.co2} ppm`;
+          })
+          .catch((error) => {
+            // Handle any errors that occur during the fetch request
+            console.error(error);
+          });
       }
 
       function getCurrentDate() {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        const days = [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ];
 
         const currentDate = new Date();
         const dayOfWeek = days[currentDate.getDay()];
@@ -191,15 +226,19 @@
       }
 
       function getNumberSuffix(dayOfMonth) {
-          if (dayOfMonth >= 11 && dayOfMonth <= 13) {
-              return 'th';
-          }
-          switch (dayOfMonth % 10) {
-              case 1: return 'st';
-              case 2: return 'nd';
-              case 3: return 'rd';
-              default: return 'th';
-          }
+        if (dayOfMonth >= 11 && dayOfMonth <= 13) {
+          return "th";
+        }
+        switch (dayOfMonth % 10) {
+          case 1:
+            return "st";
+          case 2:
+            return "nd";
+          case 3:
+            return "rd";
+          default:
+            return "th";
+        }
       }
 
       function drawChart() {
@@ -207,14 +246,16 @@
         const energyChart = new Chart(ctx, {
           type: "line",
           data: {
-          labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
-          datasets: [{
-              label: "Energy Consumption",
-              data: [19, 22, 18, 25, 20],
-              fill: false,
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 2,
-          }],
+            labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
+            datasets: [
+              {
+                label: "Energy Consumption",
+                data: [19, 22, 18, 25, 20],
+                fill: false,
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 2,
+              },
+            ],
           },
           options: {
             scales: {
@@ -226,10 +267,62 @@
         });
       }
 
-      window.onload = () => {
-        document.getElementById('current-date').textContent = getCurrentDate();
-        drawChart();
+      function initMap() {
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            fetchAirQualityData(latitude, longitude); // Call to fetch air quality data
+          },
+          function (error) {
+            console.error("Error getting geolocation:", error);
+            // Handle location access errors (e.g., permission denied)
+            // You can provide a default location or allow manual input
+          }
+        );
       }
-    </script>
+
+      function fetchAirQualityData(latitude, longitude) {
+        const apiKey = "AIzaSyAd3sISkrqdo8XsFaZdV9GCX-Cu60Dysb4";
+        const baseUrl =
+          "https://maps.googleapis.com/maps/api/airquality/snapshots";
+
+        const url = `${baseUrl}?locations=${latitude},${longitude}&key=${apiKey}`;
+
+        return fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const snapshot = data.snapshots[0]; // Assuming single location data
+            // Process the retrieved air quality data (e.g., AQI index, pollutants)
+            return snapshot;
+          })
+          .catch((error) => {
+            console.error("Error fetching air quality data:", error);
+            // Handle errors appropriately
+          });
+      }
+
+      function updateAirQualityDisplay(snapshot) {
+        const aqiIndexElement = document.getElementById("aqi-index");
+        aqiIndexElement.textContent = `AQI Index: ${snapshot.aqi}`;
+
+        const dominantPollutantElement =
+          document.getElementById("dominant-pollutant");
+        dominantPollutantElement.textContent = `Dominant Pollutant: ${snapshot.dominant_pollutant}`;
+
+        // Update other elements based on your data structure (e.g., PM2.5, O3 levels)
+      }
+
+      initMap();
+      fetchAirQualityData(latitude, longitude) // Assuming location already obtained
+        .then((snapshot) => updateAirQualityDisplay(snapshot));
+
+      window.onload = () => {
+        document.getElementById("current-date").textContent = getCurrentDate();
+        drawChart();
+      };
+
+      updateAirQualityDisplay(snapshot);
+    </script> -->
   </body>
 </html>
