@@ -69,11 +69,11 @@
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece status-container">
               <div class="status">
-                <div class="status__text">Automatic</div>
+                <div id="mode" class="mode status__text">Automatic</div>
               </div>
               <div class="card-footer">
                 <label class="switch">
-                  <input type="checkbox" />
+                  <input type="checkbox" id="modeToggle" />
                   <span class="slider round"></span>
                 </label>
               </div>
@@ -87,16 +87,35 @@
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece status-container">
               <div class="status">
-                <div class="status__text">Medium</div>
+                <div id="fan-speed" class="fan-speed status__text">Medium</div>
               </div>
               <div class="dropdown card-footer">
                 <button class="dropbtn">Change</button>
                 <div class="dropdown-content">
-                  <a id="dropdown-off" class="dropdown-off" href="#">Off</a>
-                  <a id="dropdown-medium" class="dropdown-medium" href="#"
+                  <a
+                    onclick="changeFanSpeed(this)"
+                    id="dropdown-off"
+                    class="dropdown-off"
+                    value="Off"
+                    href="#"
+                    >Off</a
+                  >
+                  <a
+                    onclick="changeFanSpeed(this)"
+                    id="dropdown-medium"
+                    class="dropdown-medium"
+                    value="Medium"
+                    href="#"
                     >Medium</a
                   >
-                  <a id="dropdown-high" class="dropdown-high" href="#">High</a>
+                  <a
+                    onclick="changeFanSpeed(this)"
+                    id="dropdown-high"
+                    class="dropdown-high"
+                    value="High"
+                    href="#"
+                    >High</a
+                  >
                 </div>
               </div>
             </div>

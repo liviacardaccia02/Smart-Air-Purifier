@@ -71,27 +71,22 @@ function drawChart() {
     });
 }
 
-function handleDropdownClick(option) {
-    document.getElementById("dropdown-content").textContent = option;
+// al reload della pagina non dovrebbe riaggiornare i dati
+function changeFanSpeed(elem) {
+    const selectedOption = elem.textContent;
+    document.getElementById("fan-speed").textContent = selectedOption;
 }
 
-
-
 window.onload = () => {
-
-    document.getElementById("dropdown-off").addEventListener("click", () => {
-        handleDropdownClick("Off");
-    });
-
-    document.getElementById("dropdown-medium").addEventListener("click", () => {
-        handleDropdownClick("Medium");
-    });
-
-    document.getElementById("dropdown-high").addEventListener("click", () => {
-        handleDropdownClick("High");
-    });
-
     fetchData();
     document.getElementById("current-date").textContent = getCurrentDate();
     drawChart();
+
+    modeToggle.addEventListener("change", function () {
+        if (modeToggle.checked) {
+            document.getElementById("mode").textContent = "MANUAL";
+        } else {
+            document.getElementById("mode").textContent = "AUTOMATIC";
+        }
+    });
 }
