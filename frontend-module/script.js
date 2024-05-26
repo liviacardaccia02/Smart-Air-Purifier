@@ -1,23 +1,64 @@
+// function fetchAirQualityData(latitude, longitude) {
+//     const baseUrl = "http://localhost:8000/google-api";
+//     const query = `locations=${latitude},${longitude}&key=YOUR_API_KEY`;
+//     const url = `${baseUrl}?${query}`;
+
+//     return fetch(url)
+//         .then(response => response.json())
+//         .then(data => {
+//             const snapshot = data.snapshots[0]; // Assuming single location data
+//             return snapshot;
+//         })
+//         .catch(error => {
+//             console.error("Error fetching air quality data:", error);
+//         });
+// }
+
+// function updateAirQualityDisplay(snapshot) {
+//     const aqiIndexElement = document.getElementById("aqi-index");
+//     aqiIndexElement.textContent = `${snapshot.aqi}`;
+
+//     const dominantPollutantElement = document.getElementById("dominant-pollutant");
+//     dominantPollutantElement.textContent = `${snapshot.dominant_pollutant}`;
+// }
+
+// function initMap() {
+//     navigator.geolocation.getCurrentPosition(
+//         function (position) {
+//             const latitude = position.coords.latitude;
+//             const longitude = position.coords.longitude;
+//             fetchAirQualityData(latitude, longitude)
+//                 .then((snapshot) => updateAirQualityDisplay(snapshot));
+//         },
+//         function (error) {
+//             console.error("Error getting geolocation:", error);
+//             // Handle location access errors (e.g., permission denied)
+//             // You can provide a default location or allow manual input
+//         }
+//     );
+//}
+
 function fetchData() {
     fetch("http://localhost:8000/data", {
         method: "GET",
         mode: "cors",
         headers: {
-            "Content-Type": "text/plain",
+            "Content-Type": "application/json",
         },
     })
         .then(response => response.json())
         .then(data => {
             console.log(data);
             // Process the fetched data here
-            speed = data.speed;
-            document.getElementById('co-status').textContent = `${data.co} ppm`;
-            document.getElementById('co2-status').textContent = `${data.co2} ppm`;
+            speed = data["Fan speed"];
+            document.getElementById('co-status').textContent = `${data["CO level"]} ppm`;
+            document.getElementById('co2-status').textContent = `${data["CO2 level"]} ppm`;
+            document.getElementById('temperature-status').textContent = `${data.Temperature}`;
+            document.getElementById('humidity-status').textContent = `${data.Humidity}`;
         })
-    // .catch(error => {
-    //     // Handle any errors that occur during the fetch request
-    //     console.error(error);
-    // });
+        .catch(error => {
+            console.error("Error fetching data:", error);
+        });
 }
 
 function getCurrentDate() {
@@ -46,8 +87,6 @@ function getNumberSuffix(dayOfMonth) {
 }
 
 function drawChart() {
-    src = "https://cdn.jsdelivr.net/npm/chart.js";
-
     const ctx = document.getElementById("energy-chart").getContext("2d");
     const energyChart = new Chart(ctx, {
         type: "line",
@@ -71,7 +110,6 @@ function drawChart() {
     });
 }
 
-// al reload della pagina non dovrebbe riaggiornare i dati
 function changeFanSpeed(elem) {
     const selectedOption = elem.textContent;
     document.getElementById("fan-speed").textContent = selectedOption;
@@ -81,7 +119,9 @@ window.onload = () => {
     fetchData();
     document.getElementById("current-date").textContent = getCurrentDate();
     drawChart();
+    //initMap();
 
+    const modeToggle = document.getElementById("modeToggle");
     modeToggle.addEventListener("change", function () {
         if (modeToggle.checked) {
             document.getElementById("mode").textContent = "MANUAL";

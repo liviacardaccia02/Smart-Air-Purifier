@@ -417,48 +417,37 @@ input:checked+.slider:before {
 }
 
 @media (max-width: 576px) {
-    .wi {
-        font-size: 70%;
-    }
 
     .dashboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: auto;
     }
 
     .dashboard-header {
-        grid-column: 1;
+        grid-column: 1/4;
     }
 
-    .weather {
+    .temperature {
         grid-row: 2;
         grid-column: 1;
     }
 
-    .temperature {
-        grid-row: 3;
-        grid-column: 1;
+    .fan-speed {
+        grid-row: 2;
+        grid-column: 2;
     }
 
-    .co {
-        grid-row: 5;
-        grid-column: 1;
+    .mode {
+        grid-row: 2;
+        grid-column: 3;
     }
 
-    .power {
-        grid-row: 7;
-        grid-column: 1;
+    .air-quality-gases {
+        grid-column: 1/4;
     }
 
-    .power .dashboard-card__card-piece {
-        flex-basis: 100%;
-    }
-
-    .power .dashboard-card__card-piece:not(:last-child) {
-        margin-bottom: 1rem;
-        border-bottom: 2px solid var(--color-text-3);
-    }
-
-    .power .dashboad-card__content {
-        flex-wrap: wrap;
+    .energy {
+        grid-row: 4;
+        grid-column: 1/4;
     }
 }

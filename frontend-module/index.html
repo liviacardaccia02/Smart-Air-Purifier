@@ -44,7 +44,7 @@
                     <span class="fa fa-home"></span>
                   </div>
                   <div class="stats__measure">
-                    <div class="stats__value">22</div>
+                    <div id="temperature-status" class="stats__value"></div>
                     <div class="stats__unit stats__unit_celsius">C</div>
                   </div>
                 </div>
@@ -54,8 +54,8 @@
                     <span class="fa fa-tint"></span>
                   </div>
                   <div class="stats__measure">
-                    <div class="stats__value">18</div>
-                    <div class="stats__unit stats__unit_celsius">C</div>
+                    <div id="humidity-status" class="stats__value"></div>
+                    <div class="stats__unit">%</div>
                   </div>
                 </div>
               </div>
@@ -130,13 +130,11 @@
               <div class="dashboard-card__card-piece">
                 <div class="air-quality-data">
                   <div class="air-quality-data__value">
-                    Air Quality Index: 12<span
-                      id="aqi-index"
-                      class="aqi-index"
-                    ></span>
+                    Air Quality Index:
+                    <span id="aqi-index" class="aqi-index"></span>
                   </div>
                   <div class="air-quality-data__value">
-                    Dominant Pollutant: CO2
+                    Dominant Pollutant:
                     <span
                       id="dominant-pollutant"
                       class="dominant-pollutant"
@@ -152,9 +150,7 @@
             </div>
             <div class="dashboad-card__content">
               <div class="dashboard-card__card-piece">
-                <div class="status_co" id="co-status">
-                  <div class="status__text">0 ppm</div>
-                </div>
+                <div class="status_co" id="co-status"></div>
               </div>
             </div>
           </div>
@@ -164,9 +160,7 @@
             </div>
             <div class="dashboad-card__content">
               <div class="dashboard-card__card-piece">
-                <div class="status_co2" id="co2-status">
-                  <div class="status__text">0 ppm</div>
-                </div>
+                <div class="status_co2" id="co2-status"></div>
               </div>
             </div>
           </div>
