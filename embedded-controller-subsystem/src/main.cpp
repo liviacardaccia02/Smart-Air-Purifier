@@ -88,10 +88,10 @@ void loop(void)
     return;
   }
 
-  float mq7Value = doc["CO"];
-  float mq135Value = doc["CO2"];
   float temperature = doc["temperature"];
   float humidity = doc["humidity"];
+  float mq7Value = doc["COlevel"];
+  float mq135Value = doc["CO2level"];
 
   stateMachine.update(temperature, mq7Value, mq135Value, json);
 }

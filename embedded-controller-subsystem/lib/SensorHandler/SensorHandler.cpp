@@ -114,10 +114,10 @@ String SensorHandler::encode()
 {
   JsonDocument jsonDoc;
 
-  jsonDoc["CO"] = MQ7CO;
-  jsonDoc["CO2"] = CO2 + PollutionOffeset;
   jsonDoc["temperature"] = temperature;
   jsonDoc["humidity"] = humidity;
+  jsonDoc["COlevel"] = MQ7CO;
+  jsonDoc["CO2level"] = CO2 + PollutionOffeset;
 
   String jsonString;
   serializeJson(jsonDoc, jsonString);
