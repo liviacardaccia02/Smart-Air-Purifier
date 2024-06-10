@@ -8,21 +8,18 @@
 #include <WIFIConnection.h>
 #include <SensorHandler.h>
 #include <FanController.h>
+#include <PurifierStateMachine.h>
 #include <Led.h>
 #include <utils.h>
+#include <OperatingMode.h>
 
 const char *ssid = "iPhone di Livia";
 const char *password = "kitty123";
 const char *mqttBroker = "broker.hivemq.com";
-const char *mainTopic = "Smart-air-purifier";
-const char *speedTopic = "Smart-air-purifier/speed";
-const char *modeTopic = "Smart-air-purifier/mode";
+const char *modeTopic = "Smart-air-purifier/control/mode";
 const char *mqttUsername = "liviacardaccia";
 const char *mqttPassword = "public";
 const int mqttPort = 1883;
-bool messageReceived = false;
-int speed = 0;
-string operatingMode = "AUTOMATIC";
 
 WiFiClient espClient;
 MQTTConnection *mqtt;
@@ -34,37 +31,7 @@ Led *greenLed;
 DHT dht(DHTPIN, DHTTYPE);
 MQUnifiedsensor MQ135("ESP32", VoltageResolution, ADCBitResolution, MQ135PIN, "MQ-135");
 MQUnifiedsensor MQ7("ESP32", VoltageResolution, ADCBitResolution, MQ7PIN, "MQ-7");
-
-void callback(char *topic, u_int8_t *payload, unsigned int length)
-{
-  Serial.print("Message arrived on topic [");
-  Serial.print(topic);
-  Serial.print("]: ");
-
-  for (int i = 0; i < length; i++)
-  {
-    Serial.print((char)payload[i]);
-  }
-  Serial.println();
-
-  if (strcmp(topic, speedTopic) == 0)
-  {
-    char str[(sizeof(payload)) + 1];
-    memcpy(str, payload, sizeof(payload));
-    str[sizeof(payload)] = 0;
-    speed = atoi(str);
-  }
-
-  if (strcmp(topic, modeTopic) == 0)
-  {
-    char str[(sizeof(payload)) + 1];
-    memcpy(str, payload, sizeof(payload));
-    str[sizeof(payload)] = 0;
-    operatingMode = atoi(str);
-  }
-
-  messageReceived = true;
-}
+PurifierStateMachine stateMachine(fan, mqtt);
 
 void setup(void)
 {
@@ -89,7 +56,16 @@ void setup(void)
   mqtt->connect();
   sensors->setUp();
   sensors->calibrate();
-  mqtt->subscribe(speedTopic, modeTopic, callback);
+  mqtt->subscribe(modeTopic, [&](char *topic, uint8_t *payload, unsigned int length)
+                  {
+        String message = String((char*)payload).substring(0, length);
+        if (message == "automatic") {
+            stateMachine.setMode(AUTOMATIC);
+        } else if (message == "manual") {
+            stateMachine.setMode(MANUAL);
+        } else if (message == "alarm") {
+            stateMachine.setMode(ALARM);
+        } });
 
   delay(100);
 }
@@ -102,12 +78,9 @@ void loop(void)
   sensors->read();
 
   String json = sensors->encode();
-
-  // Parse the JSON-like format string
   JsonDocument doc;
   DeserializationError error = deserializeJson(doc, json);
 
-  // Check if parsing was successful
   if (error)
   {
     Serial.print("Failed to parse JSON: ");
@@ -115,18 +88,10 @@ void loop(void)
     return;
   }
 
-  // TODO change logic for mode controlling
-
-  // Retrieve the numerical values from the JSON
+  float mq7Value = doc["CO"];
+  float mq135Value = doc["CO2"];
   float temperature = doc["temperature"];
   float humidity = doc["humidity"];
-  float mq7Value = doc["mq7Value"];
-  float mq135Value = doc["mq135Value"];
 
-  // Calculate the fan speed using the numerical values
-  speed = fan->calculateFanSpeed(temperature, mq7Value, mq135Value);
-  analogWrite(PWMFANPIN, speed);
-  Serial.println(speed); // TODO remove
-
-  mqtt->publish(mainTopic, json.c_str());
+  stateMachine.update(temperature, mq7Value, mq135Value, json);
 }

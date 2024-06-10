@@ -12,6 +12,7 @@
 #define TEMPERATURE_WEIGHT 0.4f
 #define CO2_LEVEL_WEIGHT 0.3f
 #define CO_LEVEL_WEIGHT 0.3f
+#define PWMFANPIN 2
 
 #include <Arduino.h>
 #include <iostream>
@@ -39,7 +40,11 @@ private:
 
 public:
     FanController();
+    bool isAnomalyDetected(float temp, float coLevel, float co2Level);
     int calculateFanSpeed(float temp, float coLevel, float co2Level);
+    void setSpeed(int speed);
+    String encodeSpeed(int speed);
+    int decodeSpeed(String speed);
 };
 
 #endif

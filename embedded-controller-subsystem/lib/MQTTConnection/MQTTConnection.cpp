@@ -42,11 +42,10 @@ void MQTTConnection::publish(const char *topic, const char *message)
     client.publish(topic, message);
 }
 
-void MQTTConnection::subscribe(const char *firstTopic, const char *secondTopic, std::function<void(char *, uint8_t *, unsigned int)> callback)
+void MQTTConnection::subscribe(const char *topic, std::function<void(char *, uint8_t *, unsigned int)> callback)
 {
     client.setCallback(callback);
-    client.subscribe(firstTopic);
-    client.subscribe(secondTopic);
+    client.subscribe(topic);
 }
 
 void MQTTConnection::checkConnection()

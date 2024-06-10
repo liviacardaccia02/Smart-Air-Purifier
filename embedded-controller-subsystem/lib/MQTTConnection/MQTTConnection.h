@@ -14,7 +14,7 @@ public:
     void connect() override;
     void checkConnection() override;
     void publish(const char *topic, const char *message);
-    void subscribe(const char *firstTopic, const char *secondTopic, std::function<void(char *, uint8_t *, unsigned int)> callback);
+    void subscribe(const char *topic, std::function<void(char *, uint8_t *, unsigned int)> callback);
     void update();
 
 private:
