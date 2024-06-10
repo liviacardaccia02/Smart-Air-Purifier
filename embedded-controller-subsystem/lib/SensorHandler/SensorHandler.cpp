@@ -76,32 +76,16 @@ void SensorHandler::read()
   // MQ7->setA(99.042);
   // MQ7->setB(-1.518);
   // MQ7CO = MQ7->readSensor();
-  MQ7CO = 0; //TODO: togliere
+  MQ7CO = 0; // TODO: togliere
 
   MQ135->update();
   MQ135->setA(605.18);
   MQ135->setB(-3.937);
   MQ135CO = MQ135->readSensor();
 
-  MQ135->setA(77.255);
-  MQ135->setB(-3.18);
-  alcohol = MQ135->readSensor();
-
   MQ135->setA(110.47);
   MQ135->setB(-2.862);
   CO2 = MQ135->readSensor();
-
-  MQ135->setA(44.947);
-  MQ135->setB(-3.445);
-  toluen = MQ135->readSensor();
-
-  MQ135->setA(102.2);
-  MQ135->setB(-2.473);
-  NH4 = MQ135->readSensor();
-
-  MQ135->setA(34.668);
-  MQ135->setB(-3.369);
-  aceton = MQ135->readSensor();
 
   temperature = dht->readTemperature();
   humidity = dht->readHumidity();
@@ -112,21 +96,13 @@ void SensorHandler::read()
 void SensorHandler::debug()
 {
   Serial.println("*** Values from sensors ***");
-  Serial.println("|   MQ7   |   CO   |  Alcohol |  CO2  |  Toluen  |  NH4  |  Aceton  |  Temp  |  Humidity  |");
+  Serial.println("|   MQ7CO   |   MQ135CO   |  CO2  |  Temperature  |  Humidity  |");
   Serial.print("|   ");
   Serial.print(MQ7CO);
   Serial.print("|   ");
   Serial.print(MQ135CO);
   Serial.print("   |   ");
-  Serial.print(alcohol);
-  Serial.print("   |   ");
-  Serial.print(CO2 + PollutionOffeset); 
-  Serial.print("   |   ");
-  Serial.print(toluen);
-  Serial.print("   |   ");
-  Serial.print(NH4);
-  Serial.print("   |   ");
-  Serial.print(aceton);
+  Serial.print(CO2 + PollutionOffeset);
   Serial.print("   |   ");
   Serial.print(temperature);
   Serial.print("   |   ");
