@@ -4,8 +4,8 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <MQUnifiedsensor.h>
-#include <MQTTManager.h>
-#include <WiFiManager.h>
+#include <MQTTConnection.h>
+#include <WIFIConnection.h>
 #include <SensorHandler.h>
 #include <FanController.h>
 #include <Led.h>
@@ -25,10 +25,10 @@ int speed = 0;
 string operatingMode = "AUTOMATIC";
 
 WiFiClient espClient;
-MQTTManager *mqttManager;
-WiFiManager *wifiManager;
-SensorHandler *sensorHandler;
-FanController *fanController;
+MQTTConnection *mqtt;
+WIFIConnection *wifi;
+SensorHandler *sensors;
+FanController *fan;
 Led *redLed;
 Led *greenLed;
 DHT dht(DHTPIN, DHTTYPE);
@@ -78,30 +78,30 @@ void setup(void)
 
   redLed = new Led(REDLEDPIN);
   greenLed = new Led(GREENLEDPIN);
-  fanController = new FanController();
-  mqttManager = new MQTTManager(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
-  wifiManager = new WiFiManager(ssid, password, redLed, greenLed);
-  sensorHandler = new SensorHandler(&dht, &MQ135, &MQ7);
+  fan = new FanController();
+  mqtt = new MQTTConnection(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
+  wifi = new WIFIConnection(ssid, password, redLed, greenLed);
+  sensors = new SensorHandler(&dht, &MQ135, &MQ7);
 
   delay(100);
 
-  wifiManager->connect();
-  mqttManager->connect();
-  sensorHandler->setUp();
-  sensorHandler->calibrate();
-  mqttManager->subscribe(speedTopic, modeTopic, callback);
+  wifi->connect();
+  mqtt->connect();
+  sensors->setUp();
+  sensors->calibrate();
+  mqtt->subscribe(speedTopic, modeTopic, callback);
 
   delay(100);
 }
 
 void loop(void)
 {
-  mqttManager->update();
-  wifiManager->checkConnection();
-  mqttManager->checkConnection();
-  sensorHandler->read();
+  mqtt->update();
+  wifi->checkConnection();
+  mqtt->checkConnection();
+  sensors->read();
 
-  String json = sensorHandler->encode();
+  String json = sensors->encode();
 
   // Parse the JSON-like format string
   JsonDocument doc;
@@ -124,9 +124,9 @@ void loop(void)
   float mq135Value = doc["mq135Value"];
 
   // Calculate the fan speed using the numerical values
-  speed = fanController->calculateFanSpeed(temperature, mq7Value, mq135Value);
+  speed = fan->calculateFanSpeed(temperature, mq7Value, mq135Value);
   analogWrite(PWMFANPIN, speed);
   Serial.println(speed); // TODO remove
 
-  mqttManager->publish(mainTopic, json.c_str());
+  mqtt->publish(mainTopic, json.c_str());
 }

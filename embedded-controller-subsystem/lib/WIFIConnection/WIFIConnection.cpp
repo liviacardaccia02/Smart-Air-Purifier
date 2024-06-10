@@ -1,6 +1,6 @@
-#include "WiFiManager.h"
+#include "WIFIConnection.h"
 
-WiFiManager::WiFiManager(const char *ssid, const char *password, Led *redLed, Led *greenLed)
+WIFIConnection::WIFIConnection(const char *ssid, const char *password, Led *redLed, Led *greenLed)
 {
     this->ssid = ssid;
     this->password = password;
@@ -8,7 +8,7 @@ WiFiManager::WiFiManager(const char *ssid, const char *password, Led *redLed, Le
     this->greenLed = greenLed;
 }
 
-void WiFiManager::connect()
+void WIFIConnection::connect()
 {
     delay(100);
 
@@ -33,7 +33,7 @@ void WiFiManager::connect()
     }
 }
 
-void WiFiManager::checkConnection()
+void WIFIConnection::checkConnection()
 {
     if (WiFi.status() != WL_CONNECTED)
     {

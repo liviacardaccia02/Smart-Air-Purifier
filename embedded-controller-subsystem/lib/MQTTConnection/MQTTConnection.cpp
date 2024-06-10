@@ -1,7 +1,7 @@
-#include "MQTTManager.h"
+#include "MQTTConnection.h"
 
-MQTTManager::MQTTManager(const char *mqttBroker, int mqttPort, const char *mqttUsername,
-                         const char *mqttPassword, WiFiClient *espClient, Led *redLed, Led *greenLed)
+MQTTConnection::MQTTConnection(const char *mqttBroker, int mqttPort, const char *mqttUsername,
+                               const char *mqttPassword, WiFiClient *espClient, Led *redLed, Led *greenLed)
 {
     this->mqttBroker = mqttBroker;
     this->mqttPort = mqttPort;
@@ -14,7 +14,7 @@ MQTTManager::MQTTManager(const char *mqttBroker, int mqttPort, const char *mqttU
     client.setClient(*espClient);
 }
 
-void MQTTManager::connect()
+void MQTTConnection::connect()
 {
     delay(100);
 
@@ -37,19 +37,19 @@ void MQTTManager::connect()
     }
 }
 
-void MQTTManager::publish(const char *topic, const char *message)
+void MQTTConnection::publish(const char *topic, const char *message)
 {
     client.publish(topic, message);
 }
 
-void MQTTManager::subscribe(const char *firstTopic, const char *secondTopic, std::function<void(char *, uint8_t *, unsigned int)> callback)
+void MQTTConnection::subscribe(const char *firstTopic, const char *secondTopic, std::function<void(char *, uint8_t *, unsigned int)> callback)
 {
     client.setCallback(callback);
     client.subscribe(firstTopic);
     client.subscribe(secondTopic);
 }
 
-void MQTTManager::checkConnection()
+void MQTTConnection::checkConnection()
 {
     if (!client.connected())
     {
@@ -59,7 +59,7 @@ void MQTTManager::checkConnection()
     }
 }
 
-void MQTTManager::update()
+void MQTTConnection::update()
 {
     client.loop();
 }
