@@ -59,11 +59,11 @@ void setup(void)
   mqtt->subscribe(modeTopic, [&](char *topic, uint8_t *payload, unsigned int length)
                   {
         String message = String((char*)payload).substring(0, length);
-        if (message == "automatic") {
+        if (message == "AUTOMATIC") {
             stateMachine.setMode(AUTOMATIC);
-        } else if (message == "manual") {
+        } else if (message == "MANUAL") {
             stateMachine.setMode(MANUAL);
-        } else if (message == "alarm") {
+        } else if (message == "ALARM") {
             stateMachine.setMode(ALARM);
         } });
 
