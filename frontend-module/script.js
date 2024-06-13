@@ -1,43 +1,3 @@
-// function fetchAirQualityData(latitude, longitude) {
-//     const baseUrl = "http://localhost:8000/google-api";
-//     const query = `locations=${latitude},${longitude}&key=YOUR_API_KEY`;
-//     const url = `${baseUrl}?${query}`;
-
-//     return fetch(url)
-//         .then(response => response.json())
-//         .then(data => {
-//             const snapshot = data.snapshots[0]; // Assuming single location data
-//             return snapshot;
-//         })
-//         .catch(error => {
-//             console.error("Error fetching air quality data:", error);
-//         });
-// }
-
-// function updateAirQualityDisplay(snapshot) {
-//     const aqiIndexElement = document.getElementById("aqi-index");
-//     aqiIndexElement.textContent = `${snapshot.aqi}`;
-
-//     const dominantPollutantElement = document.getElementById("dominant-pollutant");
-//     dominantPollutantElement.textContent = `${snapshot.dominant_pollutant}`;
-// }
-
-// function initMap() {
-//     navigator.geolocation.getCurrentPosition(
-//         function (position) {
-//             const latitude = position.coords.latitude;
-//             const longitude = position.coords.longitude;
-//             fetchAirQualityData(latitude, longitude)
-//                 .then((snapshot) => updateAirQualityDisplay(snapshot));
-//         },
-//         function (error) {
-//             console.error("Error getting geolocation:", error);
-//             // Handle location access errors (e.g., permission denied)
-//             // You can provide a default location or allow manual input
-//         }
-//     );
-//}
-
 function fetchData() {
     fetch("http://localhost:8000/data", {
         method: "GET",
@@ -49,12 +9,44 @@ function fetchData() {
         .then(response => response.json())
         .then(data => {
             console.log(data);
+            document.getElementById('temperature-status').textContent = `${data["temperature"]}`;
+            document.getElementById('humidity-status').textContent = `${data["humidity"]}`;
+            document.getElementById('co-status').textContent = `${data["COlevel"]} ppm`;
+            document.getElementById('co2-status').textContent = `${data["CO2level"]} ppm`;
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+        });
+
+    fetch("http://localhost:8000/fan-speed", {
+        method: "GET",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
             // Process the fetched data here
-            speed = data["Fan speed"];
-            document.getElementById('co-status').textContent = `${data["CO level"]} ppm`;
-            document.getElementById('co2-status').textContent = `${data["CO2 level"]} ppm`;
-            document.getElementById('temperature-status').textContent = `${data.Temperature}`;
-            document.getElementById('humidity-status').textContent = `${data.Humidity}`;
+            document.getElementById('fan-speed').textContent = `${data["fanSpeed"]}`;
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+        });
+
+    fetch("http://localhost:8000/mode", {
+        method: "GET",
+        mode: "cors",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Process the fetched data here
+            document.getElementById('mode').textContent = `${data["mode"]}`;
         })
         .catch(error => {
             console.error("Error fetching data:", error);
@@ -119,7 +111,6 @@ window.onload = () => {
     fetchData();
     document.getElementById("current-date").textContent = getCurrentDate();
     drawChart();
-    //initMap();
 
     const modeToggle = document.getElementById("modeToggle");
     modeToggle.addEventListener("change", function () {
