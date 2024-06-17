@@ -1,28 +1,27 @@
 package org.example;
 
-import http.HTTPServer;
+import http.HTTPConnectionHandler;
 import io.vertx.core.Vertx;
-import mqtt.MQTTAgent;
+import mqtt.MQTTConnectionHandler;
 import simulator.ESPSimulator;
-
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new MQTTAgent(), res -> {
+        vertx.deployVerticle(new MQTTConnectionHandler(), res -> {
             if (res.succeeded()) {
-                System.out.println("MQTTAgent verticle deployed successfully");
+                System.out.println("MQTTConnectionHandler verticle deployed successfully");
             } else {
-                System.out.println("Failed to deploy MQTTAgent verticle");
+                System.out.println("Failed to deploy MQTTConnectionHandler verticle");
                 res.cause().printStackTrace();
             }
         });
-        vertx.deployVerticle(new HTTPServer(), res -> {
+        vertx.deployVerticle(new HTTPConnectionHandler(), res -> {
             if (res.succeeded()) {
-                System.out.println("HTTPServer verticle deployed successfully");
+                System.out.println("HTTPConnectionHandler verticle deployed successfully");
             } else {
-                System.out.println("Failed to deploy HTTPServer verticle");
+                System.out.println("Failed to deploy HTTPConnectionHandler verticle");
                 res.cause().printStackTrace();
             }
         });

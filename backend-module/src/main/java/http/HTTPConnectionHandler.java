@@ -6,7 +6,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.json.JsonObject;
 import utils.Logger;
 
-public class HTTPServer extends AbstractVerticle {
+public class HTTPConnectionHandler extends AbstractVerticle {
 
     private Float temperature;
     private Float humidity;

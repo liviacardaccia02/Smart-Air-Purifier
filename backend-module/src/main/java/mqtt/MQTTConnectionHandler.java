@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mqtt.MqttClient;
 import utils.Logger;
 
-public class MQTTAgent extends AbstractVerticle {
+public class MQTTConnectionHandler extends AbstractVerticle {
 
     private MqttClient client;
 
