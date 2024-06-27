@@ -88,7 +88,7 @@ function drawChart() {
                 label: "Energy Consumption",
                 data: [19, 22, 18, 25, 20],
                 fill: false,
-                borderColor: "rgba(75, 192, 192, 1)",
+                borderColor: "rgba(32, 92, 116, 1)",
                 borderWidth: 2,
             }],
         },

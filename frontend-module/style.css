@@ -1,20 +1,11 @@
 :root {
-    --color-light-cyan: #b3e6e6;
     --color-blue: #88b7c7;
-    --color-dark-cyan: #506569;
-    --color-very-dark-cyan: #25424d;
-    --color-gray-lime: #d0d3d0;
-    --color-text-primary: #555555;
-    --color-text-secondary: #989898;
+    --color-light-cyan: #b3e6e6;
     --color-very-light-cyan: #f2f5f6;
-    --color-bg-light-gray: #dfdfdf;
-    --color-success: #5cab0e;
+    --color-dark-cyan: #506569;
     --color-danger: #de3535;
-    --color-primary: #65b6d5;
-    --color-secondary: #9fc0cd;
-    --color-text-1: #333;
-    --color-text-3: #d0d0d0;
-    --color-focus: #4d90fe;
+    --color-primary: #205C74;
+    --color-secondary: #5F95AB;
 }
 
 *,
@@ -40,9 +31,7 @@ body {
 .dashboard {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* Change the number of columns as per your requirement */
     grid-template-rows: auto;
-    /* Adjust the rows as per your requirement */
     grid-gap: .375rem;
     box-shadow: 0 10px 30px 0 rgba(0, 0, 0, .3);
     border-radius: .5rem;
@@ -50,7 +39,7 @@ body {
 }
 
 .dashboard-header {
-    background-color: var(--color-dark-cyan);
+    background-color: var(--color-primary);
     color: #fff;
     padding: .75rem 1rem;
     display: flex;
@@ -82,7 +71,7 @@ body {
 
 .dashboard-card__title {
     text-transform: uppercase;
-    color: var(--color-text-secondary);
+    color: var(--color-dark-cyan);
     font-size: .75rem;
     padding: .75rem 1rem;
     display: flex;
@@ -131,7 +120,7 @@ body {
 
 .status_co,
 .status_co2 {
-    color: var(--color-success);
+    color: var(--color-primary);
     text-transform: uppercase;
     font-weight: bold;
     font-size: 1.5rem;
@@ -182,7 +171,7 @@ body {
 }
 
 .stats__measure {
-    color: var(--color-very-dark-cyan);
+    color: var(--color-dark-cyan);
     font-weight: 100;
     display: flex;
 }
@@ -217,6 +206,18 @@ body {
     font-size: 1.5rem;
     line-height: 1;
     flex: 0 0 2rem;
+}
+
+.alert {
+    color: var(--color-danger);
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
 }
 
 .temperature {
@@ -269,7 +270,6 @@ body {
     font-weight: bold;
 }
 
-/* The switch - the box around the slider */
 .switch {
     position: relative;
     display: inline-block;
@@ -277,14 +277,12 @@ body {
     height: 34px;
 }
 
-/* Hide default HTML checkbox */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* The slider */
 .slider {
     position: absolute;
     cursor: pointer;
@@ -323,7 +321,6 @@ input:checked+.slider:before {
     transform: translateX(26px);
 }
 
-/* Rounded sliders */
 .slider.round {
     border-radius: 34px;
 }
@@ -339,7 +336,6 @@ input:checked+.slider:before {
     font-size: 16px;
     border: none;
     top: -15px;
-    /* Adjust the value to move the button up */
     right: 0;
     height: 100%;
 }
@@ -357,7 +353,6 @@ input:checked+.slider:before {
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     top: 100%;
-    /* Position the dropdown content below the button */
     left: 0;
 }
 
@@ -378,76 +373,22 @@ input:checked+.slider:before {
 
 .dropdown:hover .dropbtn {
     background-color: var(--color-light-cyan);
-    color: var(--color-dark-cyan);
+    color: var(--color-primary);
 }
 
-@media (max-width: 992px) {
+/* Media query for mobile devices */
+@media (max-width: 768px) {
     .dashboard {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: auto;
+        display: flex;
+        flex-direction: column;
     }
 
-    .dashboard-header {
-        grid-column: 1/4;
+    .dashboard-card {
+        width: 100%;
+        margin-bottom: 0.375rem;
     }
 
-    .temperature {
-        grid-row: 2;
-        grid-column: 1;
-    }
-
-    .fan-speed {
-        grid-row: 2;
-        grid-column: 2;
-    }
-
-    .mode {
-        grid-row: 2;
-        grid-column: 3;
-    }
-
-    .air-quality-gases {
-        grid-column: 1/4;
-    }
-
-    .energy {
-        grid-row: 4;
-        grid-column: 1/4;
-    }
-}
-
-@media (max-width: 576px) {
-
-    .dashboard {
-        grid-template-columns: repeat(3, 1fr);
-        grid-template-rows: auto;
-    }
-
-    .dashboard-header {
-        grid-column: 1/4;
-    }
-
-    .temperature {
-        grid-row: 2;
-        grid-column: 1;
-    }
-
-    .fan-speed {
-        grid-row: 2;
-        grid-column: 2;
-    }
-
-    .mode {
-        grid-row: 2;
-        grid-column: 3;
-    }
-
-    .air-quality-gases {
-        grid-column: 1/4;
-    }
-
-    .energy {
-        grid-row: 4;
-        grid-column: 1/4;
+    .dashboard-card.energy {
+        display: none;
     }
 }
