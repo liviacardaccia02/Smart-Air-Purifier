@@ -2,22 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Smart Air Purifier</title>
-    <script src="script.js"></script>
+    <script defer src="script.js"></script>
     <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.min.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body class="background-cyan">
     <div class="container">
@@ -27,48 +18,32 @@
           <div class="dashboard-header__date" id="current-date"></div>
         </div>
         <div class="dashboard-card temperature">
-          <div class="dashboard-card__title">
-            <span class="wi wi-thermometer"></span>Temperature
-          </div>
+          <div class="dashboard-card__title"><span class="wi wi-thermometer"></span>Temperature</div>
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece">
               <div class="temperature-stats">
                 <div class="stats__item">
                   <div class="stats__title">Temperature</div>
-                  <div class="stats__icon">
-                    <span class="fa fa-home"></span>
-                  </div>
-                  <div class="stats__measure">
-                    <div id="temperature-status" class="stats__value"></div>
-                    <div class="stats__unit stats__unit_celsius">C</div>
-                  </div>
+                  <div class="stats__icon"><span class="fa fa-home"></span></div>
+                  <div class="stats__measure"><div id="temperature-status" class="stats__value">—</div><div class="stats__unit stats__unit_celsius">°C</div></div>
                 </div>
                 <div class="stats__item">
                   <div class="stats__title">Humidity</div>
-                  <div class="stats__icon">
-                    <span class="fa fa-tint"></span>
-                  </div>
-                  <div class="stats__measure">
-                    <div id="humidity-status" class="stats__value"></div>
-                    <div class="stats__unit">%</div>
-                  </div>
+                  <div class="stats__icon"><span class="fa fa-tint"></span></div>
+                  <div class="stats__measure"><div id="humidity-status" class="stats__value">—</div><div class="stats__unit">%</div></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div class="dashboard-card mode">
-          <div class="dashboard-card__title">
-            <span class="fa fa-cogs"></span>Operating Mode
-          </div>
+          <div class="dashboard-card__title"><span class="fa fa-cogs"></span>Operating Mode</div>
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece status-container">
-              <div class="status">
-                <div id="mode" class="mode status__text">Automatic</div>
-              </div>
+              <div class="status"><div id="mode" class="mode status__text">AUTOMATIC</div></div>
               <div class="card-footer">
-                <label for="modeToggle" class="switch" hidden>
-                  Switch mode:
+                <label for="modeToggle" class="switch">
+                  <span>Manual mode</span>
                   <input type="checkbox" id="modeToggle" />
                   <span class="slider round"></span>
                 </label>
@@ -77,38 +52,16 @@
           </div>
         </div>
         <div class="dashboard-card fan-speed">
-          <div class="dashboard-card__title">
-            <span class="fa fa-spinner"></span>Fan Speed
-          </div>
+          <div class="dashboard-card__title"><span class="fa fa-spinner"></span>Fan Speed</div>
           <div class="dashboad-card__content">
             <div class="dashboard-card__card-piece status-container">
-              <div class="status">
-                <div id="fan-speed" class="fan-speed status__text">Medium</div>
-              </div>
+              <div class="status"><div id="fan-speed" class="fan-speed status__text">UNKNOWN</div></div>
               <div class="dropdown card-footer">
-                <button class="dropbtn">Change</button>
+                <button class="dropbtn" type="button">Change</button>
                 <div class="dropdown-content">
-                  <a
-                    onclick="changeFanSpeed(this)"
-                    id="dropdown-off"
-                    class="dropdown-off"
-                    href="#"
-                    >Off</a
-                  >
-                  <a
-                    onclick="changeFanSpeed(this)"
-                    id="dropdown-medium"
-                    class="dropdown-medium"
-                    href="#"
-                    >Medium</a
-                  >
-                  <a
-                    onclick="changeFanSpeed(this)"
-                    id="dropdown-high"
-                    class="dropdown-high"
-                    href="#"
-                    >High</a
-                  >
+                  <a data-speed="OFF" href="#">Off</a>
+                  <a data-speed="MEDIUM" href="#">Medium</a>
+                  <a data-speed="HIGH" href="#">High</a>
                 </div>
               </div>
             </div>
@@ -116,47 +69,23 @@
         </div>
         <div class="air-quality-gases">
           <div class="dashboard-card air-quality">
-            <div class="dashboard-card__title">
-              <span class="wi wi-day-haze"></span> Carbon Dioxide Level
-            </div>
-            <div class="dashboad-card__content">
-              <div class="dashboard-card__card-piece">
-                <div class="status_co2" id="co2-status">0 ppm</div>
-              </div>
-            </div>
+            <div class="dashboard-card__title"><span class="wi wi-day-haze"></span>Carbon Dioxide Level</div>
+            <div class="dashboad-card__content"><div class="dashboard-card__card-piece"><div class="status_co2" id="co2-status">— ppm</div></div></div>
           </div>
           <div class="dashboard-card co">
-            <div class="dashboard-card__title">
-              <span class="fa fa-bell-o"></span>Air quality alert
-            </div>
-            <div class="dashboad-card__content">
-              <div class="dashboard-card__card-piece">
-                <div class="alert" id="alert">NONE</div>
-              </div>
-            </div>
+            <div class="dashboard-card__title"><span class="fa fa-bell-o"></span>Air quality alert</div>
+            <div class="dashboad-card__content"><div class="dashboard-card__card-piece"><div class="alert" id="alert">UNKNOWN</div></div></div>
           </div>
           <div class="dashboard-card co2">
-            <div class="dashboard-card__title">
-              <span class="fa fa-cloud"></span>Carbon Dioxide Level
-            </div>
-            <div class="dashboad-card__content">
-              <div class="dashboard-card__card-piece">
-                <div class="status_co" id="co-status">1 ppm</div>
-              </div>
-            </div>
+            <div class="dashboard-card__title"><span class="fa fa-cloud"></span>Carbon Monoxide Level</div>
+            <div class="dashboad-card__content"><div class="dashboard-card__card-piece"><div class="status_co" id="co-status">— ppm</div></div></div>
           </div>
         </div>
         <div class="dashboard-card energy">
-          <div class="dashboard-card__title">
-            <span class="fa fa-line-chart"></span>Energy Consumption
-          </div>
+          <div class="dashboard-card__title"><span class="fa fa-line-chart"></span>Energy Consumption</div>
           <div class="dashboad-card__content">
-            <canvas
-              class="energy-chart"
-              id="energy-chart"
-              width="400"
-              height="200"
-            ></canvas>
+            <p>This chart currently shows illustrative sample values, not measured device consumption.</p>
+            <canvas class="energy-chart" id="energy-chart" width="400" height="200"></canvas>
           </div>
         </div>
       </div>

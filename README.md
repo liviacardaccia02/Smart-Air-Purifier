@@ -1,43 +1,50 @@
-# Smart Air Purifier🌬️
+# Smart Air Purifier
 
-Smart Air Purifier is an IoT-based prototype developed as part of a thesis project focused on intelligent air quality monitoring and control.
-The system is designed to measure air quality, analyze the data, and control an air purification unit automatically based on environmental conditions.
+An academic IoT prototype for environmental sensing and fan control, built around an ESP32, MQTT, a Java/Vert.x backend, and a browser dashboard.
 
-Built as a proof of concept, the project integrates an ESP32-based embedded controller, a lightweight backend, and a web dashboard for visualization and interaction.
-The communication between devices and services relies on MQTT and HTTP protocols, showcasing how distributed IoT systems can manage real-time data and control.
+## Architecture
 
-# System Architecture🧩
+- **Embedded controller:** ESP32 firmware reads the DHT11 and MQ-series sensors, applies the prototype's control logic, and publishes telemetry over MQTT.
+- **Backend:** Java with Vert.x exposes the dashboard and HTTP API, translates HTTP control requests into MQTT commands, and forwards telemetry to the dashboard.
+- **Dashboard:** HTML, CSS, and JavaScript display current readings and submit fan/mode controls.
 
-The system is organized into three main components:
+## Repository layout
 
-**embedded-controller-module** → Runs on ESP32; collects air quality data (e.g., particulate matter, gas concentration) and sends it to the backend. It also manages fan control logic.<br/>
-**backend-module** → Lightweight HTTP server that receives, processes, and stores sensor data. Handles communication with the frontend and embedded device.<br/>
-**frontend-module** → Web dashboard for visualizing air quality levels and device status, and for controlling the purifier.<br/>
+- `embedded-controller-module/` — PlatformIO firmware and device libraries
+- `backend-module/` — Java/Gradle backend
+- `frontend-module/` — static dashboard served by the backend
 
-# Technologies Used⚙️
+## Backend setup
 
-| Layer                 | Technology                      | Description                                            |
-| --------------------- | ------------------------------- | ------------------------------------------------------ |
-| Hardware              | **ESP32**                       | Handles sensor acquisition and fan control logic       |
-| Communication         | **MQTT**, **HTTP**              | Used for real-time data transmission between modules   |
-| Backend               | **Custom HTTP Server (Java)**   | Simple server for data collection and API handling     |
-| Frontend              | **HTML, CSS, JavaScript**       | Displays air quality metrics and control interface     |
-| Programming Languages | **Java**, **C++**, **HTML/CSS** | Used across backend, embedded, and frontend components |
+Use a Java version supported by the Gradle project, then from `backend-module` run:
 
-# Features🚀
+```bash
+./gradlew run
+```
 
-- Continuous air quality monitoring via ESP32 sensors
-- MQTT-based data exchange between embedded device and backend
-- HTTP API for storing and retrieving readings
-- Web dashboard for visualizing air quality data
-- Fan control logic implemented (partial — requires code revision for full functionality)
-- Modular design separating embedded, backend, and frontend concerns
+The HTTP server listens on port `8000`. The dashboard is served by the backend, so open `http://localhost:8000` rather than opening `index.html` directly.
 
-# Project Status🧠
+The dashboard API is:
 
-This project is a prototype built for academic and demonstrative purposes as part of a thesis.
-It is not intended for real-world or production use.<br/>
-✅ Air quality sensing and data transmission working<br/>
-✅ Dashboard displays data correctly<br/>
-⚙️ Fan control logic partially implemented (requires further testing)<br/>
-❌ No production deployment planned<br/>
+- `GET /data` — latest known sensor readings, fan speed, mode, and alarm state
+- `POST /fan-speed` — plain-text body `OFF`, `MEDIUM`, or `HIGH`
+- `POST /mode` — plain-text body `AUTOMATIC` or `MANUAL`
+
+Control requests are validated. Device commands use the MQTT topics `Smart-air-purifier/control/fan-speed` and `Smart-air-purifier/control/mode`; telemetry is published separately.
+
+## Embedded setup and credentials
+
+The firmware deliberately contains no Wi-Fi or MQTT credentials. Configure the local PlatformIO build with the preprocessor macros `WIFI_SSID` and `WIFI_PASSWORD`. If your MQTT broker requires authentication, also set `MQTT_USERNAME` and `MQTT_PASSWORD`. Quote/escape string values as required by your shell and PlatformIO environment. Do not commit credentials to source control.
+
+The current firmware uses the public HiveMQ broker over unencrypted MQTT on port 1883. This is suitable only for a demonstration; public topics may be observed or interfered with. Use a private broker with authentication and TLS before any deployment beyond a local prototype.
+
+## Known limitations
+
+- The MQ-7 CO reading is still a placeholder in the sensor implementation and is not a calibrated measurement.
+- Sensor calibration, gas concentration conversion, fan-control thresholds, and behavior must be validated with the actual hardware. This repository change does not claim physical testing.
+- The energy chart is illustrative sample data, not measured energy consumption.
+- The project is an academic proof of concept, not a safety-rated air-quality monitor or production purifier.
+
+## Technologies
+
+C++, ESP32, PlatformIO, MQTT, Java, Vert.x, Gradle, HTML, CSS, JavaScript.

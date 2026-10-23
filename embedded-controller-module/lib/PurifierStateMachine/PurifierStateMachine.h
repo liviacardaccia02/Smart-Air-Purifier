@@ -10,12 +10,14 @@ class PurifierStateMachine
 public:
     PurifierStateMachine(FanController *fanController, MQTTConnection *mqtt);
     void setMode(OperatingMode mode);
+    void setManualFanSpeed(int speed);
     void update(float temp, float coLevel, float co2Level, String json);
 
 private:
     OperatingMode currentMode;
     FanController *fanController;
     MQTTConnection *mqtt;
+    int manualFanSpeed;
 
     void handleAutomaticMode(float temp, float coLevel, float co2Level, String json);
     void handleManualMode(String json);

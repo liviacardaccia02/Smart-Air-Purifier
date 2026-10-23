@@ -5,11 +5,20 @@ PurifierStateMachine::PurifierStateMachine(FanController *fanController, MQTTCon
     this->fanController = fanController;
     this->mqtt = mqtt;
     this->currentMode = AUTOMATIC;
+    this->manualFanSpeed = 127;
 }
 
 void PurifierStateMachine::setMode(OperatingMode mode)
 {
     this->currentMode = mode;
+}
+
+void PurifierStateMachine::setManualFanSpeed(int speed)
+{
+    if (speed == 0 || speed == 127 || speed == 255)
+    {
+        manualFanSpeed = speed;
+    }
 }
 
 void PurifierStateMachine::update(float temp, float coLevel, float co2Level, String json)
@@ -37,30 +46,26 @@ void PurifierStateMachine::handleAutomaticMode(float temp, float coLevel, float 
 {
     int speed = fanController->calculateFanSpeed(temp, coLevel, co2Level);
     fanController->setSpeed(speed);
-    String speedString = fanController->encodeSpeed(speed);
-    speedString = "{\"speed\":\"" + speedString + "\"}";
+    String speedString = "{\"speed\":\"" + fanController->encodeSpeed(speed) + "\"}";
     mqtt->publish("Smart-air-purifier/fan/speed", speedString.c_str());
     mqtt->publish("Smart-air-purifier/sensor/data", json.c_str());
 }
 
 void PurifierStateMachine::handleManualMode(String json)
 {
-    int speed = 0;
-    mqtt->subscribe("Smart-air-purifier/fan/speed", [&](char *topic, uint8_t *payload, unsigned int length)
-                    {
-        String message = String((char *)payload).substring(0, length);
-        speed = fanController->decodeSpeed(message); });
-    fanController->setSpeed(speed);
+    fanController->setSpeed(manualFanSpeed);
+    mqtt->publish("Smart-air-purifier/fan/speed", ("{\"speed\":\"" + fanController->encodeSpeed(manualFanSpeed) + "\"}").c_str());
     mqtt->publish("Smart-air-purifier/sensor/data", json.c_str());
 }
 
 void PurifierStateMachine::handleAlarmMode(float temp, float coLevel, float co2Level, String json)
 {
-    this->handleAutomaticMode(temp, coLevel, co2Level, json);
+    handleAutomaticMode(temp, coLevel, co2Level, json);
     mqtt->publish("Smart-air-purifier/alarm", "true");
 
     if (!fanController->isAnomalyDetected(temp, coLevel, co2Level))
     {
         setMode(AUTOMATIC);
+        mqtt->publish("Smart-air-purifier/alarm", "false");
     }
 }
