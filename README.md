@@ -40,9 +40,7 @@ The current firmware uses the public HiveMQ broker over unencrypted MQTT on port
 
 ## Known limitations
 
-- The MQ-7 CO reading is still a placeholder in the sensor implementation and is not a calibrated measurement.
-- Sensor calibration, gas concentration conversion, fan-control thresholds, and behavior must be validated with the actual hardware. This repository change does not claim physical testing.
-- The energy chart is illustrative sample data, not measured energy consumption.
+- Sensor calibration, gas concentration conversion, fan-control thresholds, and behavior must be validated with the actual hardware. This repository latest changes do not claim physical testing.
 - The project is an academic proof of concept, not a safety-rated air-quality monitor or production purifier.
 
 ## Technologies
