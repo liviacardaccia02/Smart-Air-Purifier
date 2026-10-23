@@ -13,7 +13,6 @@
 #include <utils.h>
 #include <OperatingMode.h>
 
-// Configure these macros in your local PlatformIO build flags; never commit credentials.
 #ifndef WIFI_SSID
 #define WIFI_SSID ""
 #endif
@@ -53,18 +52,13 @@ void handleControlMessage(char *topic, uint8_t *payload, unsigned int length)
   String message;
   message.reserve(length);
   for (unsigned int i = 0; i < length; ++i)
-  {
     message += static_cast<char>(payload[i]);
-  }
 
-  if (String(topic) == modeTopic)
+  if (String(topic) == modeTopic && stateMachine != nullptr)
   {
-    if (message == "AUTOMATIC")
-      stateMachine->setMode(AUTOMATIC);
-    else if (message == "MANUAL")
-      stateMachine->setMode(MANUAL);
-    else if (message == "ALARM")
-      stateMachine->setMode(ALARM);
+    if (message == "AUTOMATIC") stateMachine->setMode(AUTOMATIC);
+    else if (message == "MANUAL") stateMachine->setMode(MANUAL);
+    else if (message == "ALARM") stateMachine->setMode(ALARM);
   }
   else if (String(topic) == fanCommandTopic && fan != nullptr && stateMachine != nullptr)
   {
@@ -76,6 +70,12 @@ void setup(void)
 {
   delay(500);
   Serial.begin(115200);
+
+  if (ssid[0] == '\0' || password[0] == '\0')
+  {
+    Serial.println("Startup stopped: configure WIFI_SSID and WIFI_PASSWORD in local PlatformIO build flags.");
+    while (true) delay(1000);
+  }
 
   pinMode(PWMMQ7PIN, OUTPUT);
   pinMode(PWMFANPIN, OUTPUT);
@@ -89,16 +89,10 @@ void setup(void)
   sensors = new SensorHandler(&dht, &MQ135, &MQ7);
   stateMachine = new PurifierStateMachine(fan, mqtt);
 
-  if (ssid[0] == '\0')
-  {
-    Serial.println("Wi-Fi credentials are not configured. Set WIFI_SSID and WIFI_PASSWORD in local build flags.");
-  }
-
   wifi->connect();
   mqtt->connect();
   sensors->setUp();
   sensors->calibrate();
-
   mqtt->subscribe(modeTopic, handleControlMessage);
   mqtt->subscribe(fanCommandTopic, handleControlMessage);
 }
@@ -116,7 +110,6 @@ void loop(void)
   String json = sensors->encode();
   JsonDocument doc;
   DeserializationError error = deserializeJson(doc, json);
-
   if (error)
   {
     Serial.print("Failed to parse JSON: ");
@@ -127,6 +120,5 @@ void loop(void)
   float temperature = doc["temperature"] | 0.0f;
   float mq7Value = doc["COlevel"] | 0.0f;
   float mq135Value = doc["CO2level"] | 0.0f;
-
   stateMachine->update(temperature, mq7Value, mq135Value, json);
 }
