@@ -13,6 +13,7 @@ FanController::FanController()
     this->tWeight = TEMPERATURE_WEIGHT;
     this->co2Weight = CO2_LEVEL_WEIGHT;
     this->coWeight = CO_LEVEL_WEIGHT;
+    initializeSpeedTable();
 }
 
 void FanController::initializeSpeedTable()
@@ -46,36 +47,16 @@ void FanController::setSpeed(int speed)
 
 String FanController::encodeSpeed(int speed)
 {
-    String speedString = "";
-    if (speed == 0)
-    {
-        speedString = "OFF";
-    }
-    else if (speed > 0 && speed < 127)
-    {
-        speedString = "MEDIUM";
-    }
-    else if (speed >= 127)
-    {
-        speedString = "HIGH";
-    }
-    return speedString;
+    if (speed == 0) return "OFF";
+    if (speed > 0 && speed < 127) return "MEDIUM";
+    if (speed >= 127) return "HIGH";
+    return "OFF";
 }
 
 int FanController::decodeSpeed(String speedString)
 {
-    int speed = 0;
-    if (speedString == "OFF")
-    {
-        speed = 0;
-    }
-    else if (speedString == "MEDIUM")
-    {
-        speed = 127;
-    }
-    else if (speedString == "HIGH")
-    {
-        speed = 255;
-    }
-    return speed;
+    if (speedString == "OFF") return 0;
+    if (speedString == "MEDIUM") return 127;
+    if (speedString == "HIGH") return 255;
+    return -1;
 }
