@@ -13,30 +13,68 @@
 #include <utils.h>
 #include <OperatingMode.h>
 
-const char *ssid = "iPhone di Livia";
-const char *password = "kitty123";
+// Configure these macros in your local PlatformIO build flags; never commit credentials.
+#ifndef WIFI_SSID
+#define WIFI_SSID ""
+#endif
+#ifndef WIFI_PASSWORD
+#define WIFI_PASSWORD ""
+#endif
+#ifndef MQTT_USERNAME
+#define MQTT_USERNAME ""
+#endif
+#ifndef MQTT_PASSWORD
+#define MQTT_PASSWORD ""
+#endif
+
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
 const char *mqttBroker = "broker.hivemq.com";
 const char *modeTopic = "Smart-air-purifier/control/mode";
-const char *mqttUsername = "liviacardaccia";
-const char *mqttPassword = "public";
+const char *fanCommandTopic = "Smart-air-purifier/control/fan-speed";
+const char *mqttUsername = MQTT_USERNAME;
+const char *mqttPassword = MQTT_PASSWORD;
 const int mqttPort = 1883;
 
 WiFiClient espClient;
-MQTTConnection *mqtt;
-WIFIConnection *wifi;
-SensorHandler *sensors;
-FanController *fan;
-Led *redLed;
-Led *greenLed;
+MQTTConnection *mqtt = nullptr;
+WIFIConnection *wifi = nullptr;
+SensorHandler *sensors = nullptr;
+FanController *fan = nullptr;
+PurifierStateMachine *stateMachine = nullptr;
+Led *redLed = nullptr;
+Led *greenLed = nullptr;
 DHT dht(DHTPIN, DHTTYPE);
 MQUnifiedsensor MQ135("ESP32", VoltageResolution, ADCBitResolution, MQ135PIN, "MQ-135");
 MQUnifiedsensor MQ7("ESP32", VoltageResolution, ADCBitResolution, MQ7PIN, "MQ-7");
-PurifierStateMachine stateMachine(fan, mqtt);
+
+void handleControlMessage(char *topic, uint8_t *payload, unsigned int length)
+{
+  String message;
+  message.reserve(length);
+  for (unsigned int i = 0; i < length; ++i)
+  {
+    message += static_cast<char>(payload[i]);
+  }
+
+  if (String(topic) == modeTopic)
+  {
+    if (message == "AUTOMATIC")
+      stateMachine->setMode(AUTOMATIC);
+    else if (message == "MANUAL")
+      stateMachine->setMode(MANUAL);
+    else if (message == "ALARM")
+      stateMachine->setMode(ALARM);
+  }
+  else if (String(topic) == fanCommandTopic && fan != nullptr && stateMachine != nullptr)
+  {
+    stateMachine->setManualFanSpeed(fan->decodeSpeed(message));
+  }
+}
 
 void setup(void)
 {
   delay(500);
-
   Serial.begin(115200);
 
   pinMode(PWMMQ7PIN, OUTPUT);
@@ -49,29 +87,27 @@ void setup(void)
   mqtt = new MQTTConnection(mqttBroker, mqttPort, mqttUsername, mqttPassword, &espClient, redLed, greenLed);
   wifi = new WIFIConnection(ssid, password, redLed, greenLed);
   sensors = new SensorHandler(&dht, &MQ135, &MQ7);
+  stateMachine = new PurifierStateMachine(fan, mqtt);
 
-  delay(100);
+  if (ssid[0] == '\0')
+  {
+    Serial.println("Wi-Fi credentials are not configured. Set WIFI_SSID and WIFI_PASSWORD in local build flags.");
+  }
 
   wifi->connect();
   mqtt->connect();
   sensors->setUp();
   sensors->calibrate();
-  mqtt->subscribe(modeTopic, [&](char *topic, uint8_t *payload, unsigned int length)
-                  {
-        String message = String((char*)payload).substring(0, length);
-        if (message == "AUTOMATIC") {
-            stateMachine.setMode(AUTOMATIC);
-        } else if (message == "MANUAL") {
-            stateMachine.setMode(MANUAL);
-        } else if (message == "ALARM") {
-            stateMachine.setMode(ALARM);
-        } });
 
-  delay(100);
+  mqtt->subscribe(modeTopic, handleControlMessage);
+  mqtt->subscribe(fanCommandTopic, handleControlMessage);
 }
 
 void loop(void)
 {
+  if (mqtt == nullptr || wifi == nullptr || sensors == nullptr || stateMachine == nullptr)
+    return;
+
   mqtt->update();
   wifi->checkConnection();
   mqtt->checkConnection();
@@ -88,10 +124,9 @@ void loop(void)
     return;
   }
 
-  float temperature = doc["temperature"];
-  float humidity = doc["humidity"];
-  float mq7Value = doc["COlevel"];
-  float mq135Value = doc["CO2level"];
+  float temperature = doc["temperature"] | 0.0f;
+  float mq7Value = doc["COlevel"] | 0.0f;
+  float mq135Value = doc["CO2level"] | 0.0f;
 
-  stateMachine.update(temperature, mq7Value, mq135Value, json);
+  stateMachine->update(temperature, mq7Value, mq135Value, json);
 }
