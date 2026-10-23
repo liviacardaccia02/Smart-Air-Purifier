@@ -9,7 +9,6 @@ MQTTConnection::MQTTConnection(const char *mqttBroker, int mqttPort, const char 
     this->mqttPassword = mqttPassword;
     this->redLed = redLed;
     this->greenLed = greenLed;
-
     client.setServer(mqttBroker, mqttPort);
     client.setClient(*espClient);
 }
@@ -17,15 +16,15 @@ MQTTConnection::MQTTConnection(const char *mqttBroker, int mqttPort, const char 
 void MQTTConnection::connect()
 {
     delay(100);
-
     if (!client.connected())
     {
         Serial.println("Connecting to MQTT...");
-
         String clientID = "ESP32Client-";
         clientID += String(random(0xffff), HEX);
 
-        while (!client.connect(clientID.c_str(), mqttUsername, mqttPassword))
+        while (!(mqttUsername[0] == '\0'
+                     ? client.connect(clientID.c_str())
+                     : client.connect(clientID.c_str(), mqttUsername, mqttPassword)))
         {
             delay(500);
             Serial.print(".");
