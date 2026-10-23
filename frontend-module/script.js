@@ -24,7 +24,7 @@ async function fetchData() {
         const data = await requestJson("/data");
         displayValue("temperature-status", data.temperature);
         displayValue("humidity-status", data.humidity);
-        displayValue("co-status", data.C0level ?? data.COlevel, "—");
+        displayValue("co-status", data.COlevel, "—");
         displayValue("co2-status", data.CO2level, "—");
         displayValue("fan-speed", data.fanSpeed, "UNKNOWN");
         displayValue("mode", data.mode, "UNKNOWN");
